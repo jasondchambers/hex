@@ -1,0 +1,173 @@
+digraph netorg_structure {
+
+    node [
+		fontname="Helvetica,Arial,sans-serif"
+		shape=record
+		style=filled
+		fillcolor=gray95
+	]
+
+	edge [arrowhead=vee style=dashed]
+    KnownDevicesPort -> { KnownDevice DeviceTable }
+    ActiveClientsPort -> { ActiveClient }
+    FixedIpReservationsPort -> { FixedIpReservation DeviceTable }
+    SecureNetworkAnalyticsHostGroupManagementPort -> { DeviceTable }
+    SecureNetworkAnalyticsHostGroupManagementAdapter -> { SecureNetworkAnalyticsSessionPort }
+    NetOrganizerApp -> { ActiveClientsPort DeviceTableCsvOutPort FixedIpReservationsPort KnownDevicesPort SecureNetworkAnalyticsHostGroupManagementPort NetorgScanner DeviceTableLoader }
+    DeviceTableLoader -> { DeviceTable ActiveClientsPort FixedIpReservationsPort KnownDevicesPort }
+    NetorgScanner -> { DeviceTable }
+    FixedIpReservationsMerakiAdapter -> { NetworkMapper }
+    NetworkMapper -> { DeviceTable }
+    
+	edge [arrowhead=empty style=""]
+    KnownDevicesYamlFileAdapter -> { KnownDevicesPort }
+    ActiveClientsMerakiAdapter -> { ActiveClientsPort }
+    FixedIpReservationsMerakiAdapter -> { FixedIpReservationsPort }
+    NetorgConfigurationJsonFileAdapter -> { NetorgConfigurationPort }
+    ConfigurationWizardConsoleAdapter -> { ConfigurationWizardPort }
+    ConfigurationWizardForSnaConsoleAdapter -> { ConfigurationWizardPort }
+    DeviceTableCsvOutConsoleAdapter -> { DeviceTableCsvOutPort }
+    SecureNetworkAnalyticsHostGroupManagementAdapter -> { SecureNetworkAnalyticsHostGroupManagementPort }
+    SecureNetworkAnalyticsSessionAdapter -> { SecureNetworkAnalyticsSessionPort }
+
+    edge [dir=back arrowtail=diamond]
+    DeviceTable -> { DataFrame }
+
+
+    NetOrganizerApp [
+        label = <{<b>NetOrganizerApp</b> | 
+        + do_devicetable()<br align="left"/>+ do_scan()<br align="left"/>+ do_save_known_devices()<br align="left"/>+ do_organize()<br align="left"/>+ do_push_changes_to_sna()<br align="left"/>}>
+    ]
+
+    DeviceTableLoader [
+        label = <{<b>DeviceTableLoader</b> | 
+        + load_all(): DeviceTable<br align="left"/>}>
+    ]
+
+    NetorgScanner [
+        label = <{<b>NetorgScanner</b> | 
+        + run()<br align="left"/>+ report()<br align="left"/>}>
+    ]
+
+    NetworkMapper [
+        label = <{<b>NetworkMapper</b> | 
+        + map_to_network_space()<br align="left"/>}>
+    ]
+
+    KnownDevicesPort [
+        fillcolor = yellow
+        label = <{<b>KnownDevicesPort</b> | 
+        + <i>load(): List[KnownDevice]</i><br align="left"/>+ <i>save(device_table: DeviceTable)</i><br align="left"/>}>
+    ]
+
+    ActiveClientsPort [
+        fillcolor = yellow
+        label = <{<b>ActiveClientsPort</b> | 
+        + <i>load(): List[ActiveClient]</i><br align="left"/>}>
+    ]
+
+    FixedIpReservationsPort [
+        fillcolor = yellow
+        label = <{<b>FixedIpReservationsPort</b> | 
+        + <i>load(): List[FixedIpReservation]</i><br align="left"/>+ <i>save(device_table: DeviceTable)</i><br align="left"/>}>
+    ]
+
+    NetorgConfigurationPort [
+        fillcolor = yellow
+        label = <{<b>NetorgConfigurationPort</b> | 
+        + <i>load(): dict</i><br align="left"/>+ <i>save(config: dict)</i><br align="left"/>}>
+    ]
+
+    ConfigurationWizardPort [
+        fillcolor = yellow
+        label = <{<b>ConfigurationWizardPort</b> | 
+        + <i>generate(): dict</i><br align="left"/>}>
+    ]
+
+    DeviceTableCsvOutPort [
+        fillcolor = yellow
+        label = <{<b>DeviceTableCsvOutPort</b> | 
+        + <i>write(device_table_csv: str)</i><br align="left"/>}>
+    ]
+
+    SecureNetworkAnalyticsHostGroupManagementPort [
+        fillcolor = yellow
+        label = <{<b>SecureNetworkAnalyticsHostGroupManagementPort</b> | 
+        + <i>update_host_groups(device_table: DeviceTable)</i><br align="left"/>}>
+    ]
+
+    SecureNetworkAnalyticsSessionPort [
+        fillcolor = yellow
+        label = <{<b>SecureNetworkAnalyticsSessionPort</b> | 
+        + <i>login()</i><br align="left"/>+ <i>logout()</i><br align="left"/>+ <i>get_host(): str</i><br align="left"/>+ <i>get_tenant_id(): str</i><br align="left"/>+ <i>get_api_session(): requests.Session</i><br align="left"/>}>
+    ]
+
+    KnownDevice [
+        label = <{<b>KnownDevice</b> | 
+        + name: str<br align="left"/>+ mac: str<br align="left"/>+ group: str<br align="left"/>}>
+    ]
+
+    ActiveClient [
+        label = <{<b>ActiveClient</b> | 
+        + mac: str<br align="left"/>+ name: str<br align="left"/>+ description: str<br align="left"/>+ ip_address: str<br align="left"/>}>
+    ]
+
+    FixedIpReservation [
+        label = <{<b>FixedIpReservation</b> | 
+        + mac: str<br align="left"/>+ name: str<br align="left"/>+ ip_address: str<br align="left"/>}>
+    ]
+
+    KnownDevicesYamlFileAdapter [
+        fillcolor = lightblue
+        label = <{<b>KnownDevicesYamlFileAdapter</b> | 
+        + load()<br align="left"/>+ save()<br align="left"/>}>
+    ]
+
+    ActiveClientsMerakiAdapter [
+        fillcolor = lightblue
+        label = <{<b>ActiveClientsMerakiAdapter</b> | 
+        + load()<br align="left"/>}>
+    ]
+
+    FixedIpReservationsMerakiAdapter [
+        fillcolor = lightblue
+        label = <{<b>FixedIpReservationsMerakiAdapter</b> | 
+        + load()<br align="left"/>+ save()<br align="left"/>}>
+    ]
+
+    NetorgConfigurationJsonFileAdapter [
+        fillcolor = lightblue
+        label = <{<b>NetorgConfigurationJsonFileAdapter</b> | 
+        + load()<br align="left"/>+ save()<br align="left"/>}>
+    ]
+
+    ConfigurationWizardConsoleAdapter [
+        fillcolor = lightblue
+        label = <{<b>ConfigurationWizardConsoleAdapter</b> | 
+        + generate()<br align="left"/>}>
+    ]
+
+    ConfigurationWizardForSnaConsoleAdapter [
+        fillcolor = lightblue
+        label = <{<b>ConfigurationWizardForSnaConsoleAdapter</b> | 
+        + generate()<br align="left"/>}>
+    ]
+
+    DeviceTableCsvOutConsoleAdapter [
+        fillcolor = lightblue
+        label = <{<b>DeviceTableCsvOutConsoleAdapter</b> | 
+        + write()<br align="left"/>}>
+    ]
+
+    SecureNetworkAnalyticsHostGroupManagementAdapter [
+        fillcolor = lightblue
+        label = <{<b>SecureNetworkAnalyticsHostGroupManagementAdapter</b> | 
+        + update_host_groups()<br align="left"/>}>
+    ]
+
+    SecureNetworkAnalyticsSessionAdapter [
+        fillcolor = lightblue
+        label = <{<b>SecureNetworkAnalyticsSessionAdapter</b> | 
+        + login()<br align="left"/>+ logout()<br align="left"/>+ get_host()<br align="left"/>+ get_tenant_id()<br align="left"/>+ get_api_session()<br align="left"/>}>
+    ]
+}
