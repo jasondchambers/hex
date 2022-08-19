@@ -1,5 +1,7 @@
 import re
 import json
+from xmlrpc.client import Boolean
+from aiohttp import BodyPartReader
 from deepdiff import DeepDiff
 from devicetable import DeviceTable
 from ports import SecureNetworkAnalyticsHostGroupManagementPort, SecureNetworkAnalyticsSessionPort
@@ -9,20 +11,34 @@ class SecureNetworkAnalyticsHostGroupManagementAdapter(SecureNetworkAnalyticsHos
 
     def __init__(self, config: dict, sna_session_port: SecureNetworkAnalyticsSessionPort):
         self.__sna_session_port = sna_session_port
-        self.host = config['sna.manager.host']
-        self.username = config['sna.manager.username']
-        self.password = config['sna.manager.password'] 
+        self.host = None
+        self.username = None
+        self.password = None
+        if 'sna.manager.host' in config.keys(): 
+            self.host = config['sna.manager.host'] 
+        if 'sna.manager.username' in config.keys(): 
+            self.username = config['sna.manager.username'] 
+        if 'sna.manager.password' in config.keys(): 
+            self.password = config['sna.manager.password'] 
 
     # overriding abstract method
     def update_host_groups(self,device_table: DeviceTable) -> None: #TODO
-        hostgroups = self.__build_hostgroups(device_table.df)
-        self.__sna_session_port.login(
-                self.host,
-                self.username,
-                self.password)
-        sna_hostgroup_manager = SnaHostGroupManager(self.__sna_session_port)
-        sna_hostgroup_manager.push_changes(hostgroups)
-        self.__sna_session_port.logout()
+        if self.__is_configured():
+            hostgroups = self.__build_hostgroups(device_table.df)
+            self.__sna_session_port.login(
+                    self.host,
+                    self.username,
+                    self.password)
+            sna_hostgroup_manager = SnaHostGroupManager(self.__sna_session_port)
+            sna_hostgroup_manager.push_changes(hostgroups)
+            self.__sna_session_port.logout()
+        else:
+            print("SecureNetworkAnalyticsHostGroupManagementAdapter: SNA is not configured - skipping.")
+
+    def __is_configured(self) -> bool:
+        if self.host is None or self.username is None or self.password is None:
+            return False 
+        return True
 
     def __build_hostgroups(self, df):
         """From the specified DataFrame, build a dictionary of hostgroups.

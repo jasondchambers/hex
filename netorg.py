@@ -39,52 +39,21 @@ def do_configure() -> None:
     net_organizer_configurator = NetorgConfigurationJsonFileAdapter()
     net_organizer_configurator.save(merged)
 
-def do_scan() -> None:
-    """Perform scan."""
-    print("Scan")
-    net_organizer_app = create_net_organizer_app()
-    net_organizer_app.do_scan()
-
-def do_devicetable() -> None:
-    """Perform devicetable (export)."""
-    print("Export the device table")
-    net_organizer_app = create_net_organizer_app()
-    net_organizer_app.do_devicetable()
-
-def do_generate() -> None:
-    """Perform generate (devices.yml)."""
-    print("Generate")
-    net_organizer_app = create_net_organizer_app()
-    net_organizer_app.do_save_known_devices()
-
-def do_organize() -> None:
-    """Perform organize."""
-    print("Organize")
-    net_organizer_app = create_net_organizer_app()
-    net_organizer_app.do_organize()
-
-def do_push_changes_to_sna() -> None:
-    """Perform push changes to SNA."""
-    print("Pushing changes to Secure Network Analytics")
-    net_organizer_app = create_net_organizer_app()
-    net_organizer_app.do_push_changes_to_sna()
-
 def get_parser() -> argparse.ArgumentParser:
     """Figure out what the user wants to happen and make it so."""
     parser = argparse.ArgumentParser(description='Organize your network.')
     group = parser.add_mutually_exclusive_group()
-    group.add_argument("-c", "--configure", help="[Re-]Configure Netorg",
+    group.add_argument("-c", "--configure", 
+                       help="[Re-]Configure Netorg.",
                        action="store_true")
-    group.add_argument("-g", "--generate", help="Generate/update a devices.yml",
+    group.add_argument("-s", "--scan", 
+                       help="Scan to discover new devices, query active devices and fixed IP reservations. Generate/update known devices (devices.yml).",
                        action="store_true")
-    group.add_argument("-s", "--scan", help="Scan to see what's active, known, reserved",
+    group.add_argument("-o", "--organize", 
+                       help="Organize the network. If configured, push changes to Secure Network Analytics.",
                        action="store_true")
-    group.add_argument("-o", "--organize", help="Organize the network",
-                       action="store_true")
-    group.add_argument("-d", "--devicetable", help="Export the device table",
-                       action="store_true")
-    group.add_argument("-p", "--pushchangestosna",
-                       help="Push grouping changes to Secure Network Analytics",
+    group.add_argument("-e", "--export", 
+                       help="Export the device table",
                        action="store_true")
     return parser
 
@@ -93,16 +62,15 @@ def main():
     args = parser.parse_args()
     if args.configure:
         do_configure()
-    elif args.generate:
-        do_generate()
     elif args.scan:
-        do_scan()
+        net_organizer_app = create_net_organizer_app()
+        net_organizer_app.do_scan()
     elif args.organize:
-        do_organize()
-    elif args.devicetable:
-        do_devicetable()
-    elif args.pushchangestosna:
-        do_push_changes_to_sna()
+        net_organizer_app = create_net_organizer_app()
+        net_organizer_app.do_organize()
+    elif args.export:
+        net_organizer_app = create_net_organizer_app()
+        net_organizer_app.do_export()
     else:
         parser.print_help(sys.stderr)
 

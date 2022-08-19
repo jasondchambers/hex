@@ -38,8 +38,6 @@ class FixedIpReservationsMerakiAdapter(FixedIpReservationsPort):
         old_fixed_ip_reservations = before_vlan['fixedIpAssignments']
         FixedIpReservationsMerakiAdapter.__show_diffs(old_fixed_ip_reservations, new_fixed_ip_reservations)
         # pylint: disable=unused-variable
-        print(old_fixed_ip_reservations)
-        print(new_fixed_ip_reservations)
         response = self.dashboard.appliance.updateNetworkApplianceVlan(
             self.network_id, self.vlan_id,
             fixedIpAssignments=new_fixed_ip_reservations)

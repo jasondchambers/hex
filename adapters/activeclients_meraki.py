@@ -15,7 +15,7 @@ class ActiveClientsMerakiAdapter(ActiveClientsPort):
         list_of_active_clients: List[ActiveClient] = []
         device_clients = self.dashboard.devices.getDeviceClients(self.serial_id)
         # pylint: disable=line-too-long
-        filtered_for_vlan = [ device_client for device_client in device_clients if device_client['vlan'] == self.vlan_id]
+        filtered_for_vlan = [ device_client for device_client in device_clients if str(device_client['vlan']) == self.vlan_id]
         for device_client in filtered_for_vlan:
             active_client = ActiveClient(
                 mac=device_client['mac'],

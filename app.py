@@ -16,32 +16,22 @@ class NetOrganizerApp():
         self.device_table_csv_out_port = device_table_csv_out_port
         self.sna_hostgroup_port = sna_hostgroup_port 
 
-    def do_devicetable(self) -> None:
+    def do_export(self) -> None:
         device_table = self.__load_device_table()
         self.device_table_csv_out_port.write(device_table.df.to_csv())
 
     def do_scan(self) -> None:
         device_table = self.__load_device_table()
+        self.known_devices_port.save(device_table)
         scanner = NetorgScanner(device_table)
         scanner.run()
         #TODO - change to a port
         scanner.report()
 
-    def do_save_known_devices(self) -> None:
-        device_table = self.__load_device_table()
-        self.known_devices_port.save(device_table)
-
     def do_organize(self) -> None:
         device_table = self.__load_device_table() 
         self.known_devices_port.save(device_table)
         self.fixed_ip_reservations_port.save(device_table)
-
-    def do_push_changes_to_sna(self) -> None:
-        device_table = self.__load_device_table() 
-        # Ensure things are organized before we push changes to SNA
-        # Mostly this is to ensure devices have IPs
-        self.known_devices_port.save(device_table)
-        self.fixed_ip_reservations_port.save(device_table) 
         self.sna_hostgroup_port.update_host_groups(device_table)
 
     def __load_device_table(self):
