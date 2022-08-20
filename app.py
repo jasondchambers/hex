@@ -16,10 +16,6 @@ class NetOrganizerApp():
         self.device_table_csv_out_port = device_table_csv_out_port
         self.sna_hostgroup_port = sna_hostgroup_port 
 
-    def do_export(self) -> None:
-        device_table = self.__load_device_table()
-        self.device_table_csv_out_port.write(device_table.df.to_csv())
-
     def do_scan(self) -> None:
         device_table = self.__load_device_table()
         self.known_devices_port.save(device_table)
@@ -33,6 +29,10 @@ class NetOrganizerApp():
         self.known_devices_port.save(device_table)
         self.fixed_ip_reservations_port.save(device_table)
         self.sna_hostgroup_port.update_host_groups(device_table)
+
+    def do_export(self) -> None:
+        device_table = self.__load_device_table()
+        self.device_table_csv_out_port.write(device_table.df.to_csv())
 
     def __load_device_table(self):
         """Load the device table."""
