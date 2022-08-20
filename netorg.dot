@@ -36,7 +36,7 @@ digraph netorg_structure {
 
     NetOrganizerApp [
         label = <{<b>NetOrganizerApp</b> | 
-        + do_devicetable()<br align="left"/>+ do_scan()<br align="left"/>+ do_save_known_devices()<br align="left"/>+ do_organize()<br align="left"/>+ do_push_changes_to_sna()<br align="left"/>}>
+        + do_scan()<br align="left"/>+ do_organize()<br align="left"/>+ do_export()<br align="left"/>}>
     ]
 
     DeviceTableLoader [
