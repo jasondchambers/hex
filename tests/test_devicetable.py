@@ -2,7 +2,7 @@ from typing import List
 import unittest
 from devicetable import DeviceTable
 from devicetableloader import DeviceTableLoader
-from ports import ActiveClient, ActiveClientsPort, DeviceTableCsvOutPort, FixedIpReservation, FixedIpReservationsPort, KnownDevice, KnownDevicesPort
+from ports import ActiveClient, ActiveClientsPort, FixedIpReservation, FixedIpReservationsPort, KnownDevice, KnownDevicesPort
 
 # Test table
 #
