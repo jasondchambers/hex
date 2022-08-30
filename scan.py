@@ -1,10 +1,12 @@
 """This is the main module for Netorg scanning."""
+import logging
 
 class NetorgScanner:
     """All things associated with Netorg scanning"""
 
     def __init__(self, device_table):
         # pylint: disable=line-too-long
+        self.__logger = logging.getLogger("netorg")
         self.device_table = device_table
         self.analysis = {
             'not_known_not_reserved_ACTIVE': {
@@ -64,9 +66,9 @@ class NetorgScanner:
         # pylint: disable=unused-variable
         for k, v in self.analysis.items():
             if len(v["device_names"]) == 0:
-                print(f'Did not find any devices that are: {v["query"]}')
+                self.__logger.info(f'Did not find any devices that are: {v["query"]}')
             else:
-                print(f'Found {len(v["device_names"])} device(s) that are: {v["query"]}')
-                print(f'{v["action"]}')
+                self.__logger.info(f'Found {len(v["device_names"])} device(s) that are: {v["query"]}')
+                self.__logger.info(f'{v["action"]}')
                 for device_name in v['device_names']:
-                    print(f'     {device_name}')
+                    self.__logger.info(f'     {device_name}')

@@ -1,4 +1,4 @@
-
+import logging
 from typing import List
 import os.path
 import yaml
@@ -10,32 +10,30 @@ class KnownDevicesYamlFileAdapter(KnownDevicesPort):
     """Load known devices from a YAML file."""
 
     def __init__(self, config: dict) -> None:
+        self.__logger = logging.getLogger("netorg")
         self.filename = config['devices_yml']
 
     # overriding abstract method
     def load(self) -> List[KnownDevice]:
-        self.__log("Loading known devices from YAML file")
         list_of_known_devices: List[KnownDevice] = []
         if os.path.exists(self.filename) :
-            self.__log(f'Loading known devices from {self.filename}')
+            self.__logger.debug(f"KnownDevicesYamlFileAdapter.load() loading known devices from {self.filename}")
             with open(self.filename, encoding='utf8') as known_devices_file:
                 yaml_data = yaml.load(known_devices_file, Loader=yaml.FullLoader)
                 return self.__generate_list_of_known_devices(yaml_data)
         else:
-            self.__log(f'{self.filename} not found')
+            self.__logger.debug(f"KnownDevicesYamlFileAdapter.load() {self.filename} not found")
+        self.__logger.debug(f"KnownDevicesYamlFileAdapter.load() returned {len(list_of_known_devices)} known devices")
         return list_of_known_devices
 
     # overriding abstract method
     def save(self,device_table: DeviceTable) -> None:
-        self.__log(f'Saving devices.yml file at {self.filename}')
+        self.__logger.debug(f"KnownDevicesYamlFileAdapter.save() saving known devices to {self.filename}")
         before = self.load()
         with open(self.filename, 'w', encoding='utf8') as devices_yml_file:
             devices_yml_file.write(self.__generate_yaml(device_table))
         after = self.load()
         self.__show_diffs(before, after)
-
-    def __log(self,msg: str) -> None:
-        print(f'KnownDevicesYamlFileAdapter: {msg}')
 
     def __generate_yaml(self, device_table) -> str :
         """From the device table, generate the known devices file (devices.yml)."""
@@ -65,7 +63,7 @@ class KnownDevicesYamlFileAdapter(KnownDevicesPort):
             if row["mac"] not in skip_these_macs:
                 devices.append(f'{row["name"]},{row["mac"]}')
             else:
-                self.__log(f'Skipping {row["name"]},{row["mac"]}')
+                self.__logger.debug(f'Skipping {row["name"]},{row["mac"]}')
         return devices
 
     def __get_groups(self, df) -> list :
@@ -76,17 +74,17 @@ class KnownDevicesYamlFileAdapter(KnownDevicesPort):
         """Show the before and after of the known devices to highlight new devices."""
         diff = DeepDiff(old_list, new_list)
         if diff:
-            self.__log("Known devices (devices.yml) differences are as follows:")
+            self.__logger.info("Known devices (devices.yml) differences are as follows:")
             if 'iterable_item_added' in diff:
-                self.__log("  Adding devices:")
+                self.__logger.info("  Adding devices:")
                 added_dict = diff['iterable_item_added']
                 # pylint: disable=unused-variable
                 for key,val in added_dict.items():
-                    self.__log(f'    {val.group}: {val.name} {val.mac}')
+                    self.__logger.info(f'    {val.group}: {val.name} {val.mac}')
             else:
-                self.__log("  There are no new devices")
+                self.__logger.info("  There are no new devices")
         else:
-            self.__log("There are no changes to known devices (devices.yml)")
+            self.__logger.info("There are no changes to known devices (devices.yml)")
 
     def __generate_list_of_known_devices(self, yaml_data) -> List[KnownDevice]:
         """Generate list of known devices from YAML data."""

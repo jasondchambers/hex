@@ -1,9 +1,11 @@
 
+import logging
 from ports import ActiveClientsPort, FixedIpReservationsPort, KnownDevicesPort
 from devicetable import DeviceTable
 
 class DeviceTableBuilder :
     """Efficiently Build a DeviceTable."""
+
     def __init__(self) -> None:
         self.__devices_dict = {}
 
@@ -47,6 +49,7 @@ class DeviceTableLoader :
                  known_devices_port: KnownDevicesPort, 
                  active_clients_port: ActiveClientsPort,
                  fixed_ip_reservations_port: FixedIpReservationsPort) -> None:
+        self.__logger = logging.getLogger("netorg")
         self.device_table_builder = DeviceTableBuilder()
         self.known_devices_port = known_devices_port
         self.active_clients_port = active_clients_port
@@ -100,8 +103,8 @@ class DeviceTableLoader :
                     record['reserved'] = True
                     if record['ip']:
                         if record['ip'] != fixed_ip_reservation.ip_address:
-                            print(f'DeviceTableLoader: for {record["name"]} reservation {fixed_ip_reservation.ip_address} differs to current lease {record["ip"]}')
-                            print(f'DeviceTableLoader: using current lease {record["ip"]} to avoid potential for collisions')
+                            self.__logger.info(f'DeviceTableLoader: for {record["name"]} reservation {fixed_ip_reservation.ip_address} differs to current lease {record["ip"]}')
+                            self.__logger.info(f'DeviceTableLoader: using current lease {record["ip"]} to avoid potential for collisions')
                     if record['active'] is False :
                         # Is in-active - has no IP so use the reserved IP
                         record['ip'] = fixed_ip_reservation.ip_address

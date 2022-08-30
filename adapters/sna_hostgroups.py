@@ -1,3 +1,4 @@
+import logging
 import re
 import json
 from xmlrpc.client import Boolean
@@ -6,10 +7,10 @@ from deepdiff import DeepDiff
 from devicetable import DeviceTable
 from ports import SecureNetworkAnalyticsHostGroupManagementPort, SecureNetworkAnalyticsSessionPort
 
-
 class SecureNetworkAnalyticsHostGroupManagementAdapter(SecureNetworkAnalyticsHostGroupManagementPort):
 
     def __init__(self, config: dict, sna_session_port: SecureNetworkAnalyticsSessionPort):
+        self.__logger = logging.getLogger("netorg")
         self.__sna_session_port = sna_session_port
         self.host = None
         self.username = None
@@ -33,7 +34,7 @@ class SecureNetworkAnalyticsHostGroupManagementAdapter(SecureNetworkAnalyticsHos
             sna_hostgroup_manager.push_changes(hostgroups)
             self.__sna_session_port.logout()
         else:
-            print("SecureNetworkAnalyticsHostGroupManagementAdapter: SNA is not configured - skipping.")
+            self.__logger.info("Secure Network Analytics is not configured - skipping.")
 
     def __is_configured(self) -> bool:
         if self.host is None or self.username is None or self.password is None:
@@ -78,6 +79,7 @@ class SnaHostGroupManager:
     NET_ORGANIZER_GROUPS = 'Net Organizer Groups'
 
     def __init__(self, sna_session_port: SecureNetworkAnalyticsSessionPort) -> None:
+        self.__logger = logging.getLogger("netorg")
         self.sna_session_port = sna_session_port
         self.hostgroups_to_create_set = set()
         self.hostgroups_to_update_set = set()
@@ -136,10 +138,10 @@ class SnaHostGroupManager:
         """Create the hostgroups."""
         net_organizer_hostgroup_id = self.ensure_net_organizer_groups_exists()
         if not hostgroups_to_create_set:
-            print('No new host groups to add')
+            self.__logger.info('No new host groups to add')
         for hostgroup_name in hostgroups_to_create_set:
             list_of_ips = hostgroups_changes[hostgroup_name]
-            print(f'Adding {hostgroup_name} {list_of_ips}')
+            self.__logger.info(f'Adding {hostgroup_name} {list_of_ips}')
             self.create_hostgroup(hostgroup_name, list_of_ips, net_organizer_hostgroup_id)
 
     def create_hostgroup(self, name, list_of_ips_in_group, parent_id): # Tested
@@ -194,10 +196,10 @@ class SnaHostGroupManager:
     def update_hostgroups(self, hostgroups_to_update_set, hostgroups_changes):
         """Update the hostgroups that have changed."""
         if not hostgroups_to_update_set:
-            print('No host groups to update')
+            self.__logger.info('No host groups to update')
         for hostgroup_name in hostgroups_to_update_set:
             id_to_update = self.find_hostgroup_id(hostgroup_name)
-            print(f'Updating {hostgroup_name} {id_to_update}')
+            self.__logger.info(f'Updating {hostgroup_name} {id_to_update}')
             self.update_hostgroup(id_to_update,hostgroups_changes[hostgroup_name])
 
     def update_hostgroup(self, id_to_update, new_ranges):
@@ -229,10 +231,10 @@ class SnaHostGroupManager:
     def delete_hostgroups(self, hostgroups_to_delete_set): #Tested
         """Delete the hostgroups that are no longer needed."""
         if not hostgroups_to_delete_set:
-            print('No host groups to delete')
+            self.__logger.info('No host groups to delete')
         for hostgroup_name in hostgroups_to_delete_set:
             id_to_delete = self.find_hostgroup_id(hostgroup_name)
-            print(f'Deleting {hostgroup_name} {id_to_delete}')
+            self.__logger.info(f'Deleting {hostgroup_name} {id_to_delete}')
             self.delete_hostgroup(id_to_delete)
 
     def delete_hostgroup(self, hostgroup_id): # Tested
@@ -272,10 +274,10 @@ class SnaHostGroupManager:
         """Ensure the root group 'Net Organizer Groups' exists."""
         net_organizer_hostgroup_id = self.find_hostgroup_id(SnaHostGroupManager.NET_ORGANIZER_GROUPS)
         if not net_organizer_hostgroup_id:
-            print(f'Did not find {SnaHostGroupManager.NET_ORGANIZER_GROUPS} - creating it')
+            self.__logger.debug(f'Did not find {SnaHostGroupManager.NET_ORGANIZER_GROUPS} - creating it')
             net_organizer_hostgroup_id = self.create_net_organizer_groups_group()
         else:
-            print(f'{SnaHostGroupManager.NET_ORGANIZER_GROUPS} already exists')
+            self.__logger.debug(f'{SnaHostGroupManager.NET_ORGANIZER_GROUPS} already exists')
         return net_organizer_hostgroup_id
 
     @staticmethod

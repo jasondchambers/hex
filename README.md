@@ -447,7 +447,13 @@ No host groups to delete
 
 Net Organizer is built using the [Hexagonal Architecture](https://alistair.cockburn.us/hexagonal-architecture/) pattern, also known as Ports and Adapters. This provides a clean structure adding flexibility making it easier to expand support beyond Meraki and also enable different user interfaces beyond the command line. 
 
+Essentially, the flexibility can be achieved by providing alternative adapters that implement the port interfaces.
+
+![netorgportsandadapters](netorgportsandadapters.png)
+
 The other key benefit I think is testability. The problem with lots and lots of unit tests is it makes the actual code harder and longer to refactor. They are still valuable and have their place, but the ability to easily re-factor the core of Net Organizer without a) breaking things but also b) not having to refactor a ton of tests is desirable. This [video TDD, Where Did It All Go Wrong (Ian Cooper)](https://www.youtube.com/watch?v=EZ05e7EMOLM) provides is a good place to start if you want to learn more. 
+
+Alternative adapters are provided to support testing of the core that when used, provide a testing harness and enable testing to be performed without the need for Meraki.
 
 Below is a UML diagram showing the most interesting classes of Net Organizer. The ports are shown in yellow and the adapters are shown in blue.
 

@@ -5,9 +5,6 @@ from ports import ConfigurationWizardPort
 
 class ConfigurationWizardConsoleAdapter(ConfigurationWizardPort):
 
-    def __init__(self):
-        self.__config = {}
-
     # overriding abstract method
     def generate(self) -> dict:
         """Generate a configuration"""

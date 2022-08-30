@@ -62,7 +62,6 @@ class FixedIpReservationsMockAdapter(FixedIpReservationsPort):
     def __generate_list_of_fixed_ip_reservation(self, device_table: DeviceTable) -> List[FixedIpReservation]:
         list_of_fixed_ip_reservations: List[FixedIpReservation] = []
         df = device_table.df
-        print(df)
         skip_these_macs = df.query("not known and reserved and not active").mac.unique().tolist()
         macs = df.mac.unique().tolist()
         for mac in macs :

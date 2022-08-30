@@ -1,3 +1,4 @@
+import logging
 import re
 from typing import List
 import meraki
@@ -9,7 +10,11 @@ from ports import FixedIpReservation, FixedIpReservationsPort
 class FixedIpReservationsMerakiAdapter(FixedIpReservationsPort):
 
     def __init__(self, config: dict) -> None:
-        self.dashboard = meraki.DashboardAPI(config['api_key'], suppress_logging=True)
+        self.__logger = logging.getLogger("netorg")
+        supress_logging = True
+        if self.__logger.getEffectiveLevel() == logging.DEBUG:
+            supress_logging = False
+        self.dashboard = meraki.DashboardAPI(config['api_key'], suppress_logging=supress_logging)
         self.network_id = config['network_id']
         self.vlan_id = str(config['vlan_id'])
         self.vlan_subnet = config['vlan_subnet']
@@ -27,6 +32,7 @@ class FixedIpReservationsMerakiAdapter(FixedIpReservationsPort):
                     ip_address=reservation_details['ip']
                 )
                 list_of_fixed_ip_reservations.append(fixed_ip_reservation)
+        self.__logger.debug(f"FixedIpReservationsMerakiAdapter.load() returned {len(list_of_fixed_ip_reservations)} fixed IP reservations")
         return list_of_fixed_ip_reservations
 
     # overriding abstract method
@@ -41,11 +47,13 @@ class FixedIpReservationsMerakiAdapter(FixedIpReservationsPort):
         response = self.dashboard.appliance.updateNetworkApplianceVlan(
             self.network_id, self.vlan_id,
             fixedIpAssignments=new_fixed_ip_reservations)
+        self.__logger.debug(f"FixedIpReservationsMerakiAdapter.save() response from Meraki {response}")
 
     @staticmethod
     def __generate_fixed_ip_reservations(device_table: DeviceTable) -> dict:
         """Generate fixed IP reservations."""
         # pylint: disable=invalid-name
+        logger = logging.getLogger("netorg")
         ip_reservations_dict = {}
         df = device_table.df
         skip_these_macs = df.query("not known and reserved and not active").mac.unique().tolist()
@@ -61,17 +69,18 @@ class FixedIpReservationsMerakiAdapter(FixedIpReservationsPort):
                         'name': name
                     }
             else:
-                print(f'MerakiFixedIpReservationsGenerator: skipping {mac}')
+                logger.debug(f'MerakiFixedIpReservationsGenerator: skipping {mac}')
         return ip_reservations_dict
 
     @staticmethod
     def __show_diffs(old_fixed_ip_reservations, new_fixed_ip_reservations):
         """Show the before and after differences to the fixed IP reservations."""
+        logger = logging.getLogger("netorg")
         diff = DeepDiff(old_fixed_ip_reservations, new_fixed_ip_reservations)
         if diff:
-            print("Fixed IP reservation differences are as follows:")
+            logger.info("Fixed IP reservation differences are as follows:")
             if 'dictionary_item_added' in diff:
-                print("  Adding reservations:")
+                logger.info("  Adding reservations:")
                 added_list = diff['dictionary_item_added']
                 for added in added_list:
                     added = re.search("'.*'", added)
@@ -79,11 +88,11 @@ class FixedIpReservationsMerakiAdapter(FixedIpReservationsPort):
                         added = added.group()
                         added = added.strip("'")
                         # pylint: disable=line-too-long
-                        print(f'    {new_fixed_ip_reservations[added]["ip"]} for device {added} named {new_fixed_ip_reservations[added]["name"]}')
+                        logger.info(f'    {new_fixed_ip_reservations[added]["ip"]} for device {added} named {new_fixed_ip_reservations[added]["name"]}')
             else:
-                print("  There are no new fixed IP reservations")
+                logger.info("  There are no new fixed IP reservations")
             if 'dictionary_item_removed' in diff:
-                print("  Removing reservations:")
+                logger.info("  Removing reservations:")
                 removed_list = diff['dictionary_item_removed']
                 for removed in removed_list:
                     removed = re.search("'.*'", removed)
@@ -91,6 +100,6 @@ class FixedIpReservationsMerakiAdapter(FixedIpReservationsPort):
                         removed = removed.group()
                         removed = removed.strip("'")
                         # pylint: disable=line-too-long
-                        print(f'    {old_fixed_ip_reservations[removed]["ip"]} for device {removed} named {old_fixed_ip_reservations[removed]["name"]}')
+                        logger.info(f'    {old_fixed_ip_reservations[removed]["ip"]} for device {removed} named {old_fixed_ip_reservations[removed]["name"]}')
         else:
-            print("There are no changes to fixed IP reservations")
+            logger.info("There are no changes to fixed IP reservations")

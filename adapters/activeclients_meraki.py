@@ -1,4 +1,5 @@
 
+import logging
 from typing import List
 import meraki
 from ports import ActiveClient, ActiveClientsPort
@@ -6,7 +7,11 @@ from ports import ActiveClient, ActiveClientsPort
 class ActiveClientsMerakiAdapter(ActiveClientsPort):
 
     def __init__(self, config: dict) -> None:
-        self.dashboard = meraki.DashboardAPI(config['api_key'], suppress_logging=True)
+        self.__logger = logging.getLogger("netorg")
+        supress_logging = True
+        if self.__logger.getEffectiveLevel() == logging.DEBUG:
+            supress_logging = False
+        self.dashboard = meraki.DashboardAPI(config['api_key'], suppress_logging=supress_logging)
         self.serial_id = config['serial_id']
         self.vlan_id   = str(config['vlan_id'])
 
@@ -24,4 +29,5 @@ class ActiveClientsMerakiAdapter(ActiveClientsPort):
                 ip_address=device_client['ip']
             )
             list_of_active_clients.append(active_client)
+        self.__logger.debug(f"ActiveClientsMerakiAdapter.load() returned {len(list_of_active_clients)} active clients")
         return list_of_active_clients
