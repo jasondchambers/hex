@@ -47,10 +47,10 @@ class ActiveClientsTestAdapter(ActiveClientsPort):
     """Test data for active clients."""
 
     list_of_active_clients: List[ActiveClient] = [
-        ActiveClient(mac='__a', name=None, description='__a', ip_address='192.168.128.201'),
-        ActiveClient(mac='_ra', name=None, description='_ra', ip_address='192.168.128.203'),
-        ActiveClient(mac='k_a', name=None, description='k_a', ip_address='192.168.128.205'),
-        ActiveClient(mac='kra', name=None, description='kra', ip_address='192.168.128.207')
+        ActiveClient(mac='__a', name='__a', ip_address='192.168.128.201'),
+        ActiveClient(mac='_ra', name='_ra', ip_address='192.168.128.203'),
+        ActiveClient(mac='k_a', name='k_a', ip_address='192.168.128.205'),
+        ActiveClient(mac='kra', name='kra', ip_address='192.168.128.207')
     ]
 
     # overriding abstract method

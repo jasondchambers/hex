@@ -21,7 +21,7 @@ class KnownDevicesMockAdapter(KnownDevicesPort):
 
     def __generate_list_of_known_devices(self, device_table: DeviceTable) -> List[KnownDevice]:
         list_of_known_devices: List[KnownDevice] = []
-        df = device_table.df
+        df = device_table.get_df()
         skip_these_macs = df.query("not known and reserved and not active").mac.unique().tolist()
         for index, row in df.iterrows():
             if row["mac"] not in skip_these_macs: 
@@ -61,7 +61,7 @@ class FixedIpReservationsMockAdapter(FixedIpReservationsPort):
 
     def __generate_list_of_fixed_ip_reservation(self, device_table: DeviceTable) -> List[FixedIpReservation]:
         list_of_fixed_ip_reservations: List[FixedIpReservation] = []
-        df = device_table.df
+        df = device_table.get_df()
         skip_these_macs = df.query("not known and reserved and not active").mac.unique().tolist()
         macs = df.mac.unique().tolist()
         for mac in macs :

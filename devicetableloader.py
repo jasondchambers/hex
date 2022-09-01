@@ -1,4 +1,4 @@
-
+"""Responsible for loading the DeviceTable."""
 import logging
 from ports import ActiveClientsPort, FixedIpReservationsPort, KnownDevicesPort
 from devicetable import DeviceTable
@@ -45,8 +45,8 @@ class DeviceTableBuilder :
 class DeviceTableLoader :
     """Load data into the DeviceTable."""
 
-    def __init__(self, 
-                 known_devices_port: KnownDevicesPort, 
+    def __init__(self,
+                 known_devices_port: KnownDevicesPort,
                  active_clients_port: ActiveClientsPort,
                  fixed_ip_reservations_port: FixedIpReservationsPort) -> None:
         self.__logger = logging.getLogger("netorg")
@@ -88,7 +88,7 @@ class DeviceTableLoader :
                 record = DeviceTableBuilder.generate_new_record()
                 record['active'] = True
                 record['ip'] = active_client.ip_address
-                record['name'] = active_client.description
+                record['name'] = active_client.name
                 self.device_table_builder.set_details(active_client.mac, record)
 
     def __load_fixed_ip_reservations(self) -> None:
@@ -104,10 +104,8 @@ class DeviceTableLoader :
                     if record['ip']:
                         if record['ip'] != fixed_ip_reservation.ip_address:
                             self.__logger.info(f'DeviceTableLoader: for {record["name"]} reservation {fixed_ip_reservation.ip_address} differs to current lease {record["ip"]}')
-                            self.__logger.info(f'DeviceTableLoader: using current lease {record["ip"]} to avoid potential for collisions')
-                    if record['active'] is False :
-                        # Is in-active - has no IP so use the reserved IP
-                        record['ip'] = fixed_ip_reservation.ip_address
+                            self.__logger.info(f'DeviceTableLoader: using {fixed_ip_reservation.ip_address}')
+                    record['ip'] = fixed_ip_reservation.ip_address
                     self.device_table_builder.set_details(fixed_ip_reservation.mac, record)
                 else :
                     # Seeing device for the first time

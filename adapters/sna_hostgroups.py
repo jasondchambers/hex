@@ -25,7 +25,7 @@ class SecureNetworkAnalyticsHostGroupManagementAdapter(SecureNetworkAnalyticsHos
     # overriding abstract method
     def update_host_groups(self,device_table: DeviceTable) -> None: #TODO
         if self.__is_configured():
-            hostgroups = self.__build_hostgroups(device_table.df)
+            hostgroups = self.__build_hostgroups(device_table.get_df())
             self.__sna_session_port.login(
                     self.host,
                     self.username,

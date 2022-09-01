@@ -39,6 +39,7 @@ class FixedIpReservationsMerakiAdapter(FixedIpReservationsPort):
     def save(self,device_table: DeviceTable) -> None: #TODO
         network_mapper = NetworkMapper(self.vlan_subnet,device_table)
         network_mapper.map_to_network_space()
+        self.__logger.info(f'Network space is {network_mapper.get_percent_used():.2f}% full')
         new_fixed_ip_reservations = FixedIpReservationsMerakiAdapter.__generate_fixed_ip_reservations(device_table)
         before_vlan = self.dashboard.appliance.getNetworkApplianceVlan(self.network_id, str(self.vlan_id))
         old_fixed_ip_reservations = before_vlan['fixedIpAssignments']
@@ -55,7 +56,7 @@ class FixedIpReservationsMerakiAdapter(FixedIpReservationsPort):
         # pylint: disable=invalid-name
         logger = logging.getLogger("netorg")
         ip_reservations_dict = {}
-        df = device_table.df
+        df = device_table.get_df()
         skip_these_macs = df.query("not known and reserved and not active").mac.unique().tolist()
         macs = df.mac.unique().tolist()
         for mac in macs :

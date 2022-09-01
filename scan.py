@@ -55,7 +55,7 @@ class NetorgScanner:
         """Run the analysis updating the analysis dictionary with the findings."""
         # pylint: disable=invalid-name
         # pylint: disable=unused-variable
-        df = self.device_table.df
+        df = self.device_table.get_df()
         for k, v in self.analysis.items():
             query_result_df = df.query(v['query'])
             v['device_names'] = query_result_df['name'].values.tolist()

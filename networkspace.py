@@ -58,24 +58,30 @@ class NetworkMapper :
         for mac in self.__find_macs_needing_ip() :
             self.__assign_ip(mac)
 
+    def get_percent_used(self) -> float:
+        """Returns the percentage of the network space that has been used"""
+        amount_used = len(self.__network_space.get_used_set())
+        total_address_space = len(self.__network_space.get_address_set())
+        return amount_used / total_address_space * 100.0
+
     def get_network_space(self) -> Ipv4PrivateNetworkSpace:
         return self.__network_space
 
     def __find_ips(self) -> list:
         """Generate a list of IPs from the device table."""
         # pylint: disable=invalid-name
-        df = self.__device_table.df
+        df = self.__device_table.get_df()
         return df.query("ip != ''")['ip'].tolist()
 
     def __find_macs_needing_ip(self) -> list:
         """Generate a list of MACs that do not have an IP."""
         # pylint: disable=invalid-name
-        df = self.__device_table.df
+        df = self.__device_table.get_df()
         return df.query("ip == ''")['mac'].tolist()
 
     def __assign_ip(self,mac) -> None:
         """Assign an IP address to a device identified by it's MAC."""
         # pylint: disable=invalid-name
-        df = self.__device_table.df
+        df = self.__device_table.get_df()
         df.loc[df["mac"] == mac, "ip"] = self.__network_space.allocate_address()
 

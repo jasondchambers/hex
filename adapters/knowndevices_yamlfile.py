@@ -39,7 +39,7 @@ class KnownDevicesYamlFileAdapter(KnownDevicesPort):
         """From the device table, generate the known devices file (devices.yml)."""
         yaml_lines = []
         yaml_lines.append("devices:")
-        df = device_table.df
+        df = device_table.get_df()
         skip_these_macs = df.query("not known and reserved and not active").mac.unique().tolist()
         groups = self.__get_groups(df)
         for group_name in groups :

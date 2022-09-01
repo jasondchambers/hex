@@ -44,10 +44,10 @@ class KnownDevicesTestAdapter(KnownDevicesPort):
 class ActiveClientsTestAdapter(ActiveClientsPort):
 
     list_of_active_clients: List[ActiveClient] = [
-        ActiveClient(mac='aab', name=None, description='HS105',           ip_address='192.168.128.201'),
-        ActiveClient(mac='abb', name=None, description='HS105',           ip_address='192.168.128.202'),
-        ActiveClient(mac='bab', name=None, description='Office Printer',  ip_address='192.168.128.203'),
-        ActiveClient(mac='bbb', name=None, description='Driveway camera', ip_address='192.168.128.204')
+        ActiveClient(mac='aab', name='HS105',           ip_address='192.168.128.201'),
+        ActiveClient(mac='abb', name='HS105',           ip_address='192.168.128.202'),
+        ActiveClient(mac='bab', name='Office Printer',  ip_address='192.168.128.203'),
+        ActiveClient(mac='bbb', name='Driveway camera', ip_address='192.168.128.204')
     ]
 
     # overriding abstract method
@@ -92,7 +92,7 @@ class TestDeviceTableLoader(unittest.TestCase) :
             fixed_ip_reservations_port=None
         )
         device_table_loader._DeviceTableLoader__load_known()
-        df = device_table_loader.device_table_builder.build().df
+        df = device_table_loader.device_table_builder.build().get_df()
         self.assertEqual(len(KnownDevicesTestAdapter.list_of_known_devices),df.query("known").shape[0])
         self.assertEqual(0,df.query("active").shape[0])
         self.assertEqual(0,df.query("reserved").shape[0])
@@ -105,7 +105,7 @@ class TestDeviceTableLoader(unittest.TestCase) :
             fixed_ip_reservations_port=None
         )
         device_table_loader._DeviceTableLoader__load_active_clients()
-        df = device_table_loader.device_table_builder.build().df
+        df = device_table_loader.device_table_builder.build().get_df()
         self.assertEqual(0,df.query("known").shape[0])
         self.assertEqual(len(ActiveClientsTestAdapter.list_of_active_clients),df.query("active").shape[0])
         self.assertEqual(0,df.query("reserved").shape[0])
@@ -118,7 +118,7 @@ class TestDeviceTableLoader(unittest.TestCase) :
             fixed_ip_reservations_port=FixedIpReservationsTestAdapter()
         )
         device_table_loader._DeviceTableLoader__load_fixed_ip_reservations()
-        df = device_table_loader.device_table_builder.build().df
+        df = device_table_loader.device_table_builder.build().get_df()
         self.assertEqual(0,df.query("known").shape[0])
         self.assertEqual(0,df.query("active").shape[0])
         self.assertEqual(len(FixedIpReservationsTestAdapter.list_of_fixed_ip_reservations),df.query("reserved").shape[0])
@@ -130,7 +130,7 @@ class TestDeviceTableLoader(unittest.TestCase) :
             active_clients_port=ActiveClientsTestAdapter(),
             fixed_ip_reservations_port=FixedIpReservationsTestAdapter()
         )
-        df = device_table_loader.load_all().df
+        df = device_table_loader.load_all().get_df()
         self.assertEqual(TEST_TABLE_SIZE,df.shape[0])
 
         # known

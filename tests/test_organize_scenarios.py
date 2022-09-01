@@ -1,6 +1,7 @@
 import unittest
 from typing import List
 from app import NetOrganizerApp
+from networkspace import NetworkIsOutOfSpace
 from ports import ActiveClient, FixedIpReservation, KnownDevice
 from tests.mockadapters import ActiveClientsMockAdapter, FixedIpReservationsMockAdapter, KnownDevicesMockAdapter
 
@@ -16,7 +17,7 @@ class TestOrganizeScenarios(unittest.TestCase) :
             # No known devices
         ]
         active_clients: List[ActiveClient] = [
-            ActiveClient(mac='aa', name=None, description='Jasons iPad', ip_address='192.168.128.20')
+            ActiveClient(mac='aa', name='Jasons iPad', ip_address='192.168.128.20')
         ]
         fixed_ip_reservations: List[FixedIpReservation] = [
             # No Fixed IP reservations
@@ -71,7 +72,7 @@ class TestOrganizeScenarios(unittest.TestCase) :
             KnownDevice(name='Jasons iPad', mac='aa', group="jasons_devices")
         ]
         active_clients: List[ActiveClient] = [
-            ActiveClient(mac='aa', name=None, description='Jasons iPad', ip_address='192.168.128.20')
+            ActiveClient(mac='aa', name='Jasons iPad', ip_address='192.168.128.20')
         ]
         fixed_ip_reservations: List[FixedIpReservation] = [
             # Missing fixed IP reservation
@@ -148,3 +149,52 @@ class TestOrganizeScenarios(unittest.TestCase) :
         self.assertEqual(len(post_organize_fixed_ip_reservations), 1, "Expected there to be one new fixed IP reservation")
         self.assertEqual(post_organize_fixed_ip_reservations[0].mac, 'aa')
         self.assertEqual(post_organize_fixed_ip_reservations[0].name, 'Jasons iPad')
+
+    def test_activeip_different_to_fixedip(self):
+        known_devices: List[KnownDevice]= [
+            KnownDevice(name='Jasons Devices work laptop-JASCHAMB-M-XRDP', mac='f8:4d:89:7d:71:90', group="jasons_devices")
+        ]
+        active_clients: List[ActiveClient] = [
+            ActiveClient(mac='f8:4d:89:7d:71:90', name='Jasons Devices work laptop-JASCHAMB-M-XRDP', ip_address='169.254.162.207')
+        ]
+        fixed_ip_reservations: List[FixedIpReservation] = [
+            FixedIpReservation(mac='f8:4d:89:7d:71:90', name='Jasons Devices work laptop-JASCHAMB-M-XRDP', ip_address='192.168.128.237')
+        ] 
+        known_devices_port=KnownDevicesMockAdapter(seed_list=known_devices)
+        active_clients_port=ActiveClientsMockAdapter(seed_list=active_clients)
+        fixed_ip_reservations_port=FixedIpReservationsMockAdapter(vlan_subnet='192.168.128.0/24',seed_list=fixed_ip_reservations)
+        net_organizer_app = NetOrganizerApp(
+            known_devices_port,
+            active_clients_port,
+            fixed_ip_reservations_port,
+            device_table_csv_out_port=None,
+            sna_hostgroup_port=None,
+        )
+        net_organizer_app.do_organize()
+        post_organize_fixed_ip_reservations = fixed_ip_reservations_port.load()
+        self.assertEqual(len(post_organize_fixed_ip_reservations), 1, "Expected there to be one new fixed IP reservation")
+        self.assertEqual(post_organize_fixed_ip_reservations[0].mac, 'f8:4d:89:7d:71:90')
+        self.assertEqual(post_organize_fixed_ip_reservations[0].name, 'Jasons Devices work laptop-JASCHAMB-M-XRDP')
+        self.assertEqual(post_organize_fixed_ip_reservations[0].ip_address, '192.168.128.237')
+
+    def test_networkspace_exhausted(self):
+        known_devices: List[KnownDevice]= [
+            KnownDevice(name='Not enough space left for this device', mac='new', group="jasons_devices")
+        ]
+        active_clients: List[ActiveClient] = [
+            ActiveClient(mac='active', name='active', ip_address='192.168.128.254')
+        ]
+        fixed_ip_reservations: List[FixedIpReservation] = [
+            FixedIpReservation(mac='reserved', ip_address='192.168.128.253', name='reserved')
+        ]
+        known_devices_port=KnownDevicesMockAdapter(seed_list=known_devices)
+        active_clients_port=ActiveClientsMockAdapter(seed_list=active_clients)
+        fixed_ip_reservations_port=FixedIpReservationsMockAdapter(vlan_subnet='192.168.128.252/30',seed_list=fixed_ip_reservations)
+        net_organizer_app = NetOrganizerApp(
+            known_devices_port,
+            active_clients_port,
+            fixed_ip_reservations_port,
+            device_table_csv_out_port=None,
+            sna_hostgroup_port=None,
+        )
+        self.assertRaises(NetworkIsOutOfSpace, net_organizer_app.do_organize)

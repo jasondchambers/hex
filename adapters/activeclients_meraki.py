@@ -24,8 +24,8 @@ class ActiveClientsMerakiAdapter(ActiveClientsPort):
         for device_client in filtered_for_vlan:
             active_client = ActiveClient(
                 mac=device_client['mac'],
-                name=device_client['dhcpHostname'], # Is this used?
-                description=device_client['description'],
+                #name=device_client['dhcpHostname'], # Is this used?
+                name=device_client['description'],
                 ip_address=device_client['ip']
             )
             list_of_active_clients.append(active_client)

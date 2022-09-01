@@ -16,11 +16,12 @@ class KnownDevice(NamedTuple):
 class ActiveClient(NamedTuple):
     mac: str
     name: str
-    description: str
+    #description: str
     ip_address: str
 
     def __str__(self) -> str:
-        return f'Active client: {self.name} {self.description} with MAC {self.mac} has IP address {self.ip_address}'
+        #return f'Active client: {self.name} {self.description} with MAC {self.mac} has IP address {self.ip_address}'
+        return f'Active client: {self.name} with MAC {self.mac} has IP address {self.ip_address}'
 
 class FixedIpReservation(NamedTuple):
     mac: str

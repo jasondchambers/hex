@@ -90,10 +90,10 @@ class ActiveClientsTestAdapter(ActiveClientsPort):
     """Test data for active clients."""
 
     list_of_active_clients: List[ActiveClient] = [
-        ActiveClient(mac='__a', name=None, description='__a', ip_address='192.168.128.201'),
-        ActiveClient(mac='_ra', name=None, description='_ra', ip_address='192.168.128.203'),
-        ActiveClient(mac='k_a', name=None, description='k_a', ip_address='192.168.128.205'),
-        ActiveClient(mac='kra', name=None, description='kra', ip_address='192.168.128.207')
+        ActiveClient(mac='__a', name='__a', ip_address='192.168.128.201'),
+        ActiveClient(mac='_ra', name='_ra', ip_address='192.168.128.203'),
+        ActiveClient(mac='k_a', name='k_a', ip_address='192.168.128.205'),
+        ActiveClient(mac='kra', name='kra', ip_address='192.168.128.207')
     ]
 
     # overriding abstract method
@@ -147,7 +147,7 @@ class ActiveClientsTestAdapterForOutOfSpaceTest(ActiveClientsPort):
     """Test data for active clients."""
 
     list_of_active_clients: List[ActiveClient] = [
-        ActiveClient(mac='_ra', name=None, description='_ra', ip_address='192.168.128.254')
+        ActiveClient(mac='_ra', name='_ra', ip_address='192.168.128.254')
     ]
 
     # overriding abstract method
@@ -206,10 +206,10 @@ class ActiveClientsTestAdapterForDuplicateIpTest(ActiveClientsPort):
     """Test data for active clients."""
 
     list_of_active_clients: List[ActiveClient] = [
-        ActiveClient(mac='__a', name=None, description='__a', ip_address='192.168.128.201'),
-        ActiveClient(mac='_ra', name=None, description='_ra', ip_address='192.168.128.203'),
-        ActiveClient(mac='k_a', name=None, description='k_a', ip_address='192.168.128.205'),
-        ActiveClient(mac='kra', name=None, description='kra', ip_address='192.168.128.202') # Duplicate IP with _r_
+        ActiveClient(mac='__a', name='__a', ip_address='192.168.128.201'),
+        ActiveClient(mac='_ra', name='_ra', ip_address='192.168.128.203'),
+        ActiveClient(mac='k_a', name='k_a', ip_address='192.168.128.205'),
+        ActiveClient(mac='kra', name='kra', ip_address='192.168.128.202') # Duplicate IP with _r_
     ]
 
     # overriding abstract method
@@ -266,8 +266,8 @@ class ActiveClientsTestAdapterForIpReservationGeneratorTest(ActiveClientsPort):
     """Test data for active clients."""
 
     list_of_active_clients: List[ActiveClient] = [
-        ActiveClient(mac='__a_201', name=None, description='__a_201', ip_address='192.168.128.201'),
-        ActiveClient(mac='__a_202', name=None, description='__a_202', ip_address='192.168.128.202')
+        ActiveClient(mac='__a_201', name='__a_201', ip_address='192.168.128.201'),
+        ActiveClient(mac='__a_202', name='__a_202', ip_address='192.168.128.202')
     ]
 
     # overriding abstract method
@@ -311,11 +311,11 @@ class TestNetworkMapper(unittest.TestCase) :
             fixed_ip_reservations_port=FixedIpReservationsTestAdapter()
         )
         device_table = device_table_loader.load_all()
-        devices_with_no_ip = device_table.df.query("ip == ''")['mac'].tolist()
+        devices_with_no_ip = device_table.get_df().query("ip == ''")['mac'].tolist()
         self.assertEqual(1, len(devices_with_no_ip), "Expected there to be one device needing an IP")
         network_mapper = NetworkMapper(vlan_subnet="192.168.128.0/24",device_table=device_table)
         network_mapper.map_to_network_space()
-        devices_with_no_ip = device_table.df.query("ip == ''")['mac'].tolist()
+        devices_with_no_ip = device_table.get_df().query("ip == ''")['mac'].tolist()
         self.assertEqual(0, len(devices_with_no_ip), "Expected there to be zero devices needing an IP")
 
     def test_invalid_subnet(self):
@@ -342,7 +342,7 @@ class TestNetworkMapper(unittest.TestCase) :
         network_mapper = NetworkMapper(
             vlan_subnet="192.168.128.252/30",
             device_table=device_table)
-        devices_with_no_ip = device_table.df.query("ip == ''")['mac'].tolist()
+        devices_with_no_ip = device_table.get_df().query("ip == ''")['mac'].tolist()
         self.assertEqual(1, len(devices_with_no_ip), "Expected there to be one device needing an IP")
         self.assertRaises(NetworkIsOutOfSpace, network_mapper.map_to_network_space)
 
