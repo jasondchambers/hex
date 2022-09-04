@@ -2,16 +2,16 @@
 import argparse
 import logging
 import sys
-from adapters.activeclients_meraki import ActiveClientsMerakiAdapter
-from adapters.configuration_jsonfile import NetorgConfigurationJsonFileAdapter
-from adapters.configurationwizard import ConfigurationWizardConsoleAdapter
-from adapters.configurationwizard_sna import ConfigurationWizardForSnaConsoleAdapter
-from adapters.devicetableout_console import DeviceTableCsvOutConsoleAdapter
-from adapters.fixedipreservations_meraki import FixedIpReservationsMerakiAdapter
-from adapters.knowndevices_yamlfile import KnownDevicesYamlFileAdapter
-from adapters.sna_hostgroups import SecureNetworkAnalyticsHostGroupManagementAdapter
-from adapters.sna_session import SecureNetworkAnalyticsSessionAdapter
-from app import NetOrganizerApp
+from adapters import activeclients_meraki
+from adapters import configuration_jsonfile
+from adapters import configurationwizard_console
+from adapters import configurationwizard_sna_console
+from adapters import devicetableout_console
+from adapters import fixedipreservations_meraki
+from adapters import knowndevices_yamlfile
+from adapters import sna_hostgroups
+from adapters import sna_session
+from netorg_core import app
 
 def init_logging(debug_flag: bool) -> None:
     """ Initialize logging so that 
@@ -47,31 +47,31 @@ def init_logging(debug_flag: bool) -> None:
     logger.addHandler(info_channel)
     logger.addHandler(error_channel)
 
-def create_net_organizer_app(debug_flag: bool) -> NetOrganizerApp:
+def create_net_organizer_app(debug_flag: bool) -> app.NetOrganizerApp:
     init_logging(debug_flag)
-    configuration_port = NetorgConfigurationJsonFileAdapter()
+    configuration_port = configuration_jsonfile.NetorgConfigurationAdapter()
     config = configuration_port.load()
-    net_organizer_app = NetOrganizerApp(
-        known_devices_port=KnownDevicesYamlFileAdapter(config),
-        active_clients_port=ActiveClientsMerakiAdapter(config),
-        fixed_ip_reservations_port=FixedIpReservationsMerakiAdapter(config),
-        device_table_csv_out_port=DeviceTableCsvOutConsoleAdapter(config),
-        sna_hostgroup_port=SecureNetworkAnalyticsHostGroupManagementAdapter(
+    net_organizer_app = app.NetOrganizerApp(
+        known_devices_port=knowndevices_yamlfile.KnownDevicesAdapter(config),
+        active_clients_port=activeclients_meraki.ActiveClientsAdapter(config),
+        fixed_ip_reservations_port=fixedipreservations_meraki.FixedIpReservationsAdapter(config),
+        device_table_csv_out_port=devicetableout_console.DeviceTableCsvOutAdapter(config),
+        sna_hostgroup_port=sna_hostgroups.SecureNetworkAnalyticsHostGroupManagementAdapter(
             config,
-            sna_session_port=SecureNetworkAnalyticsSessionAdapter()
+            sna_session_port=sna_session.SecureNetworkAnalyticsSessionAdapter()
         )
     )
     return net_organizer_app
 
 def do_configure() -> None:
     """Perform configure."""
-    config_wizard = ConfigurationWizardConsoleAdapter()
+    config_wizard = configurationwizard_console.ConfigurationWizardAdapter()
     config = config_wizard.generate()
-    config_wizard_for_sna = ConfigurationWizardForSnaConsoleAdapter(
-        sna_session_port=SecureNetworkAnalyticsSessionAdapter())
+    config_wizard_for_sna = configurationwizard_sna_console.ConfigurationWizardForSnaAdapter(
+        sna_session_port=sna_session.SecureNetworkAnalyticsSessionAdapter())
     config_sna = config_wizard_for_sna.generate()
     merged = {**config,**config_sna}
-    net_organizer_configurator = NetorgConfigurationJsonFileAdapter()
+    net_organizer_configurator = configuration_jsonfile.NetorgConfigurationAdapter()
     net_organizer_configurator.save(merged)
 
 def get_parser() -> argparse.ArgumentParser:

@@ -3,9 +3,9 @@ from distutils.command.config import config
 import json
 import logging
 import os
-from ports import NetorgConfigurationPort
+from netorg_core import ports
 
-class NetorgConfigurationJsonFileAdapter(NetorgConfigurationPort):
+class NetorgConfigurationAdapter(ports.NetorgConfigurationPort):
     """Configuration file adapter where the config file is JSON in the home directory."""
     
     def __init__(self) -> None:

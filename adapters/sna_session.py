@@ -1,12 +1,12 @@
 import requests
 import json
-from ports import SecureNetworkAnalyticsSessionPort
+from netorg_core import ports
 try:
     requests.packages.urllib3.disable_warnings()
 except:
     pass
 
-class SecureNetworkAnalyticsSessionAdapter(SecureNetworkAnalyticsSessionPort):
+class SecureNetworkAnalyticsSessionAdapter(ports.SecureNetworkAnalyticsSessionPort):
     """Secure Network Analytics Session."""
 
     XSRF_HEADER_NAME = 'X-XSRF-TOKEN'
@@ -64,9 +64,9 @@ class SecureNetworkAnalyticsSessionAdapter(SecureNetworkAnalyticsSessionPort):
                         self.__api_session.headers.update({SecureNetworkAnalyticsSessionAdapter.XSRF_HEADER_NAME: cookie.value})
                         break
             else:
-                raise SecureNetworkAnalyticsSessionPort.FailedToLogin()
+                raise ports.SecureNetworkAnalyticsSessionPort.FailedToLogin()
         except requests.exceptions.ConnectionError as e:
-            raise SecureNetworkAnalyticsSessionPort.FailedToLogin() from e
+            raise ports.SecureNetworkAnalyticsSessionPort.FailedToLogin() from e
 
     def __query_tenant_id(self) -> str:
         """Discover the tenant id."""

@@ -1,19 +1,19 @@
 import getpass
 import os
 import meraki
-from ports import ConfigurationWizardPort
+from netorg_core import ports
 
-class ConfigurationWizardConsoleAdapter(ConfigurationWizardPort):
+class ConfigurationWizardAdapter(ports.ConfigurationWizardPort):
 
     # overriding abstract method
     def generate(self) -> dict:
         """Generate a configuration"""
-        api_key = ConfigurationWizardConsoleAdapter.__get_api_key()
+        api_key = ConfigurationWizardAdapter.__get_api_key()
         meraki_wrapper = MerakiWrapper(api_key)
-        meraki_wrapper.initialize(ConfigurationWizardConsoleAdapter.__choose_from_options)
+        meraki_wrapper.initialize(ConfigurationWizardAdapter.__choose_from_options)
         config = {}
         config['api_key'] = api_key
-        config['devices_yml'] = ConfigurationWizardConsoleAdapter.__get_devices_yml_path()
+        config['devices_yml'] = ConfigurationWizardAdapter.__get_devices_yml_path()
         config['org_id'] = meraki_wrapper.get_org_id()
         config['network_id'] = meraki_wrapper.get_network_id()
         config['serial_id'] = meraki_wrapper.get_serial_id()
@@ -45,8 +45,8 @@ class ConfigurationWizardConsoleAdapter(ConfigurationWizardPort):
     @staticmethod
     def __get_devices_yml_path() -> str:
         """Obtain the fully qualified pathname for where to find/store known devices"""
-        directory = ConfigurationWizardConsoleAdapter.__get_devices_yml_directory()
-        filename = ConfigurationWizardConsoleAdapter.__get_devices_yml_filename()
+        directory = ConfigurationWizardAdapter.__get_devices_yml_directory()
+        filename = ConfigurationWizardAdapter.__get_devices_yml_filename()
         full_path = os.path.join(directory,filename)
         return full_path
 

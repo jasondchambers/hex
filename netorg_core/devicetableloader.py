@@ -1,7 +1,7 @@
 """Responsible for loading the DeviceTable."""
 import logging
-from ports import ActiveClientsPort, FixedIpReservationsPort, KnownDevicesPort
-from devicetable import DeviceTable
+from netorg_core import ports
+from netorg_core import devicetable
 
 class DeviceTableBuilder :
     """Efficiently Build a DeviceTable."""
@@ -31,7 +31,7 @@ class DeviceTableBuilder :
         """Set the details for a given device identified by it's MAC."""
         self.__devices_dict[mac] = details
 
-    def build(self) -> DeviceTable:
+    def build(self) -> devicetable.DeviceTable:
         """Build the DeviceTable."""
         data = []
         # pylint: disable=consider-using-dict-items
@@ -40,22 +40,22 @@ class DeviceTableBuilder :
             device_mac_dict = {'mac': mac}
             merged = {**device_mac_dict,**details}
             data.append(merged)
-        return DeviceTable(data)
+        return devicetable.DeviceTable(data)
 
 class DeviceTableLoader :
     """Load data into the DeviceTable."""
 
     def __init__(self,
-                 known_devices_port: KnownDevicesPort,
-                 active_clients_port: ActiveClientsPort,
-                 fixed_ip_reservations_port: FixedIpReservationsPort) -> None:
+                 known_devices_port: ports.KnownDevicesPort,
+                 active_clients_port: ports.ActiveClientsPort,
+                 fixed_ip_reservations_port: ports.FixedIpReservationsPort) -> None:
         self.__logger = logging.getLogger("netorg")
         self.device_table_builder = DeviceTableBuilder()
         self.known_devices_port = known_devices_port
         self.active_clients_port = active_clients_port
         self.fixed_ip_reservations_port = fixed_ip_reservations_port
 
-    def load_all(self) -> DeviceTable :
+    def load_all(self) -> devicetable.DeviceTable :
         """Load everything into the DeviceTable."""
         self.__load_known()
         self.__load_active_clients()

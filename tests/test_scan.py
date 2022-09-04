@@ -1,10 +1,10 @@
 """Tests for scan.py."""
 import unittest
 from typing import List
-from devicetable import DeviceTable
-from devicetableloader import DeviceTableLoader
-from ports import ActiveClient, ActiveClientsPort, FixedIpReservation, FixedIpReservationsPort, KnownDevice, KnownDevicesPort
-from scan import NetorgScanner
+from netorg_core import devicetable
+from netorg_core import devicetableloader
+from netorg_core import ports
+from netorg_core import scan
 
 # pylint: disable=line-too-long
 # Test table
@@ -20,22 +20,22 @@ from scan import NetorgScanner
 # kr_   1 |             1 | .206 |      0 | known & reserved                           |
 # kra   1 |             1 | .207 |      1 | known & reserved & active (& unclassified) | invite classification
 
-class KnownDevicesTestAdapter(KnownDevicesPort):
+class KnownDevicesTestAdapter(ports.KnownDevicesPort):
     """Test data for known devices."""
 
-    list_of_known_devices: List[KnownDevice] = [
-        KnownDevice(name='k__', mac='k__', group='servers'),
-        KnownDevice(name='k_a', mac='k_a', group='printers'),
-        KnownDevice(name='kr_', mac='kr_', group='security'),
-        KnownDevice(name='kra', mac='kra', group='unclassified')
+    list_of_known_devices: List[ports.KnownDevice] = [
+        ports.KnownDevice(name='k__', mac='k__', group='servers'),
+        ports.KnownDevice(name='k_a', mac='k_a', group='printers'),
+        ports.KnownDevice(name='kr_', mac='kr_', group='security'),
+        ports.KnownDevice(name='kra', mac='kra', group='unclassified')
     ]
 
     # overriding abstract method
-    def load(self) -> List[KnownDevice]:
+    def load(self) -> List[ports.KnownDevice]:
         return self.list_of_known_devices
 
     # overriding abstract method
-    def save(self,device_table: DeviceTable) -> None:
+    def save(self,device_table: devicetable.DeviceTable) -> None:
         pass
 
     @staticmethod
@@ -43,18 +43,18 @@ class KnownDevicesTestAdapter(KnownDevicesPort):
         """Return list of MACs."""
         return [d.mac for d in KnownDevicesTestAdapter.list_of_known_devices]
 
-class ActiveClientsTestAdapter(ActiveClientsPort):
+class ActiveClientsTestAdapter(ports.ActiveClientsPort):
     """Test data for active clients."""
 
-    list_of_active_clients: List[ActiveClient] = [
-        ActiveClient(mac='__a', name='__a', ip_address='192.168.128.201'),
-        ActiveClient(mac='_ra', name='_ra', ip_address='192.168.128.203'),
-        ActiveClient(mac='k_a', name='k_a', ip_address='192.168.128.205'),
-        ActiveClient(mac='kra', name='kra', ip_address='192.168.128.207')
+    list_of_active_clients: List[ports.ActiveClient] = [
+        ports.ActiveClient(mac='__a', name='__a', ip_address='192.168.128.201'),
+        ports.ActiveClient(mac='_ra', name='_ra', ip_address='192.168.128.203'),
+        ports.ActiveClient(mac='k_a', name='k_a', ip_address='192.168.128.205'),
+        ports.ActiveClient(mac='kra', name='kra', ip_address='192.168.128.207')
     ]
 
     # overriding abstract method
-    def load(self) -> List[ActiveClient]:
+    def load(self) -> List[ports.ActiveClient]:
         return self.list_of_active_clients
 
     @staticmethod
@@ -62,22 +62,22 @@ class ActiveClientsTestAdapter(ActiveClientsPort):
         """Return list of MACs."""
         return [d.mac for d in ActiveClientsTestAdapter.list_of_active_clients]
 
-class FixedIpReservationsTestAdapter(FixedIpReservationsPort):
+class FixedIpReservationsTestAdapter(ports.FixedIpReservationsPort):
     """Test data for fixed IP reservations."""
 
-    list_of_fixed_ip_reservations: List[FixedIpReservation] = [
-        FixedIpReservation(mac='_r_', ip_address='192.168.128.202', name='_r_'),
-        FixedIpReservation(mac='_ra', ip_address='192.168.128.203', name='_ra'),
-        FixedIpReservation(mac='kr_', ip_address='192.168.128.206', name='kr_'),
-        FixedIpReservation(mac='kra', ip_address='192.168.128.207', name='kra')
+    list_of_fixed_ip_reservations: List[ports.FixedIpReservation] = [
+        ports.FixedIpReservation(mac='_r_', ip_address='192.168.128.202', name='_r_'),
+        ports.FixedIpReservation(mac='_ra', ip_address='192.168.128.203', name='_ra'),
+        ports.FixedIpReservation(mac='kr_', ip_address='192.168.128.206', name='kr_'),
+        ports.FixedIpReservation(mac='kra', ip_address='192.168.128.207', name='kra')
     ]
 
     # overriding abstract method
-    def load(self) -> List[FixedIpReservation]: 
+    def load(self) -> List[ports.FixedIpReservation]: 
         return self.list_of_fixed_ip_reservations
 
     # overriding abstract method
-    def save(self,device_table: DeviceTable) -> None: 
+    def save(self,device_table: devicetable.DeviceTable) -> None: 
         pass
 
     @staticmethod
@@ -90,13 +90,13 @@ class TestNetorgScanner(unittest.TestCase) :
 
     def test_run(self):
         """Test NetorgScanner.run()."""
-        device_table_loader = DeviceTableLoader(
+        device_table_loader = devicetableloader.DeviceTableLoader(
             known_devices_port=KnownDevicesTestAdapter(),
             active_clients_port=ActiveClientsTestAdapter(),
             fixed_ip_reservations_port=FixedIpReservationsTestAdapter()
         )
         device_table = device_table_loader.load_all()
-        scanner = NetorgScanner(device_table)
+        scanner = scan.NetorgScanner(device_table)
         scanner.run()
         analysis = scanner.analysis
         self.assertListEqual(analysis['not_known_not_reserved_ACTIVE']['device_names'], ['__a'])

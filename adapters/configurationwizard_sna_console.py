@@ -1,9 +1,9 @@
 import getpass
-from ports import ConfigurationWizardPort, SecureNetworkAnalyticsSessionPort
+from netorg_core import ports
 
-class ConfigurationWizardForSnaConsoleAdapter(ConfigurationWizardPort):
+class ConfigurationWizardForSnaAdapter(ports.ConfigurationWizardPort):
 
-    def __init__(self, sna_session_port: SecureNetworkAnalyticsSessionPort):
+    def __init__(self, sna_session_port: ports.SecureNetworkAnalyticsSessionPort):
         self.__sna_session_port = sna_session_port
 
     # overriding abstract method
@@ -34,6 +34,6 @@ class ConfigurationWizardForSnaConsoleAdapter(ConfigurationWizardPort):
             self.__sna_session_port.logout()
             print('Secure Network Analytics configuration is valid')
             return True
-        except SecureNetworkAnalyticsSessionPort.FailedToLogin as e:
+        except ports.SecureNetworkAnalyticsSessionPort.FailedToLogin as e:
             print(f'Failed to login to Secure Network Analytics Manager at {config["sna.manager.host"]}')
             return False

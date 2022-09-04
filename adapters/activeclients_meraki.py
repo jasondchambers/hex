@@ -2,9 +2,9 @@
 import logging
 from typing import List
 import meraki
-from ports import ActiveClient, ActiveClientsPort
+from netorg_core import ports
 
-class ActiveClientsMerakiAdapter(ActiveClientsPort):
+class ActiveClientsAdapter(ports.ActiveClientsPort):
 
     def __init__(self, config: dict) -> None:
         self.__logger = logging.getLogger("netorg")
@@ -16,13 +16,13 @@ class ActiveClientsMerakiAdapter(ActiveClientsPort):
         self.vlan_id   = str(config['vlan_id'])
 
     # overriding abstract method
-    def load(self) -> List[ActiveClient]:
-        list_of_active_clients: List[ActiveClient] = []
+    def load(self) -> List[ports.ActiveClient]:
+        list_of_active_clients: List[ports.ActiveClient] = []
         device_clients = self.dashboard.devices.getDeviceClients(self.serial_id)
         # pylint: disable=line-too-long
         filtered_for_vlan = [ device_client for device_client in device_clients if str(device_client['vlan']) == self.vlan_id]
         for device_client in filtered_for_vlan:
-            active_client = ActiveClient(
+            active_client = ports.ActiveClient(
                 mac=device_client['mac'],
                 #name=device_client['dhcpHostname'], # Is this used?
                 name=device_client['description'],

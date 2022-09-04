@@ -3,11 +3,11 @@ import re
 from typing import List
 import meraki
 from deepdiff import DeepDiff
-from devicetable import DeviceTable
-from networkspace import NetworkMapper
-from ports import FixedIpReservation, FixedIpReservationsPort
+from netorg_core import devicetable
+from netorg_core import networkspace
+from netorg_core import ports
 
-class FixedIpReservationsMerakiAdapter(FixedIpReservationsPort):
+class FixedIpReservationsAdapter(ports.FixedIpReservationsPort):
 
     def __init__(self, config: dict) -> None:
         self.__logger = logging.getLogger("netorg")
@@ -20,13 +20,13 @@ class FixedIpReservationsMerakiAdapter(FixedIpReservationsPort):
         self.vlan_subnet = config['vlan_subnet']
         
     # overriding abstract method
-    def load(self) -> List[FixedIpReservation]:
-        list_of_fixed_ip_reservations: List[FixedIpReservation] = []
+    def load(self) -> List[ports.FixedIpReservation]:
+        list_of_fixed_ip_reservations: List[ports.FixedIpReservation] = []
         vlan = self.dashboard.appliance.getNetworkApplianceVlan(self.network_id, str(self.vlan_id))
         reservations = vlan['fixedIpAssignments']
         if reservations:
             for mac, reservation_details in reservations.items():
-                fixed_ip_reservation = FixedIpReservation(
+                fixed_ip_reservation = ports.FixedIpReservation(
                     mac=mac,
                     name=reservation_details['name'],
                     ip_address=reservation_details['ip']
@@ -36,14 +36,14 @@ class FixedIpReservationsMerakiAdapter(FixedIpReservationsPort):
         return list_of_fixed_ip_reservations
 
     # overriding abstract method
-    def save(self,device_table: DeviceTable) -> None: #TODO
-        network_mapper = NetworkMapper(self.vlan_subnet,device_table)
+    def save(self,device_table: devicetable.DeviceTable) -> None: #TODO
+        network_mapper = networkspace.NetworkMapper(self.vlan_subnet,device_table)
         network_mapper.map_to_network_space()
         self.__logger.info(f'Network space is {network_mapper.get_percent_used():.2f}% full')
-        new_fixed_ip_reservations = FixedIpReservationsMerakiAdapter.__generate_fixed_ip_reservations(device_table)
+        new_fixed_ip_reservations = FixedIpReservationsAdapter.__generate_fixed_ip_reservations(device_table)
         before_vlan = self.dashboard.appliance.getNetworkApplianceVlan(self.network_id, str(self.vlan_id))
         old_fixed_ip_reservations = before_vlan['fixedIpAssignments']
-        FixedIpReservationsMerakiAdapter.__show_diffs(old_fixed_ip_reservations, new_fixed_ip_reservations)
+        FixedIpReservationsAdapter.__show_diffs(old_fixed_ip_reservations, new_fixed_ip_reservations)
         # pylint: disable=unused-variable
         response = self.dashboard.appliance.updateNetworkApplianceVlan(
             self.network_id, self.vlan_id,
@@ -51,7 +51,7 @@ class FixedIpReservationsMerakiAdapter(FixedIpReservationsPort):
         self.__logger.debug(f"FixedIpReservationsMerakiAdapter.save() response from Meraki {response}")
 
     @staticmethod
-    def __generate_fixed_ip_reservations(device_table: DeviceTable) -> dict:
+    def __generate_fixed_ip_reservations(device_table: devicetable.DeviceTable) -> dict:
         """Generate fixed IP reservations."""
         # pylint: disable=invalid-name
         logger = logging.getLogger("netorg")

@@ -4,12 +4,12 @@ import json
 from xmlrpc.client import Boolean
 from aiohttp import BodyPartReader
 from deepdiff import DeepDiff
-from devicetable import DeviceTable
-from ports import SecureNetworkAnalyticsHostGroupManagementPort, SecureNetworkAnalyticsSessionPort
+from netorg_core import devicetable
+from netorg_core import ports
 
-class SecureNetworkAnalyticsHostGroupManagementAdapter(SecureNetworkAnalyticsHostGroupManagementPort):
+class SecureNetworkAnalyticsHostGroupManagementAdapter(ports.SecureNetworkAnalyticsHostGroupManagementPort):
 
-    def __init__(self, config: dict, sna_session_port: SecureNetworkAnalyticsSessionPort):
+    def __init__(self, config: dict, sna_session_port: ports.SecureNetworkAnalyticsSessionPort):
         self.__logger = logging.getLogger("netorg")
         self.__sna_session_port = sna_session_port
         self.host = None
@@ -23,7 +23,7 @@ class SecureNetworkAnalyticsHostGroupManagementAdapter(SecureNetworkAnalyticsHos
             self.password = config['sna.manager.password'] 
 
     # overriding abstract method
-    def update_host_groups(self,device_table: DeviceTable) -> None: #TODO
+    def update_host_groups(self,device_table: devicetable.DeviceTable) -> None: #TODO
         if self.__is_configured():
             hostgroups = self.__build_hostgroups(device_table.get_df())
             self.__sna_session_port.login(
@@ -78,7 +78,7 @@ class SnaHostGroupManager:
     INSIDE_HOSTS = 'Inside Hosts'
     NET_ORGANIZER_GROUPS = 'Net Organizer Groups'
 
-    def __init__(self, sna_session_port: SecureNetworkAnalyticsSessionPort) -> None:
+    def __init__(self, sna_session_port: ports.SecureNetworkAnalyticsSessionPort) -> None:
         self.__logger = logging.getLogger("netorg")
         self.sna_session_port = sna_session_port
         self.hostgroups_to_create_set = set()
@@ -165,7 +165,7 @@ class SnaHostGroupManager:
         url = f'https://{self.sna_session_port.get_host()}/smc-configuration/rest/v1/tenants/{self.sna_session_port.get_tenant_id()}/tags'
         response = self.sna_session_port.get_api_session().request("POST", url, verify=False, data=json.dumps(request_data), headers=request_headers)
         if response.status_code != 200:
-            raise SecureNetworkAnalyticsHostGroupManagementPort.FailedToCreateHostGroup()
+            raise ports.SecureNetworkAnalyticsHostGroupManagementPort.FailedToCreateHostGroup()
 
     @staticmethod # Tested
     def get_hostgroups_to_update(diff) -> set:
@@ -213,7 +213,7 @@ class SnaHostGroupManager:
             request_data = hostgroup_details
             response = self.sna_session_port.get_api_session().request("PUT", url, verify=True, data=json.dumps(request_data), headers=request_headers)
             if response.status_code != 200:
-                raise SecureNetworkAnalyticsHostGroupManagementPort.FailedToUpdateHostGroup()
+                raise ports.SecureNetworkAnalyticsHostGroupManagementPort.FailedToUpdateHostGroup()
 
     @staticmethod # Tested
     def get_hostgroups_to_delete(diff) -> set:
@@ -243,7 +243,7 @@ class SnaHostGroupManager:
             url = f'https://{self.sna_session_port.get_host()}/smc-configuration/rest/v1/tenants/{self.sna_session_port.get_tenant_id()}/tags/{hostgroup_id}'
             response = self.sna_session_port.get_api_session().request("DELETE", url, verify=False)
             if response.status_code != 200:
-                raise SecureNetworkAnalyticsHostGroupManagementPort.FailedToDeleteHostGroup()
+                raise ports.SecureNetworkAnalyticsHostGroupManagementPort.FailedToDeleteHostGroup()
 
     @staticmethod # Tested
     def get_group_children(root, hostgroup_id):
@@ -323,4 +323,4 @@ class SnaHostGroupManager:
         response = self.sna_session_port.get_api_session().request("POST", url, verify=False, data=json.dumps(request_data), headers=request_headers)
         if response.status_code == 200:
             return json.loads(response.content)['data'][0]['id']
-        raise SecureNetworkAnalyticsHostGroupManagementPort.FailedToCreateHostGroup()
+        raise ports.SecureNetworkAnalyticsHostGroupManagementPort.FailedToCreateHostGroup()

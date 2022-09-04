@@ -1,6 +1,6 @@
-from ports import DeviceTableCsvOutPort
+from netorg_core import ports
 
-class DeviceTableCsvOutConsoleAdapter(DeviceTableCsvOutPort):
+class DeviceTableCsvOutAdapter(ports.DeviceTableCsvOutPort):
 
     def __init__(self, config: dict) -> None:
         pass

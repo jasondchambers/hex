@@ -1,9 +1,9 @@
 import unittest
 from typing import List
-from app import NetOrganizerApp
-from networkspace import NetworkIsOutOfSpace
-from ports import ActiveClient, FixedIpReservation, KnownDevice
-from tests.mockadapters import ActiveClientsMockAdapter, FixedIpReservationsMockAdapter, KnownDevicesMockAdapter
+from netorg_core import app, networkspace
+from netorg_core import networkspace
+from netorg_core import ports
+from tests import mockadapters
 
 class TestOrganizeScenarios(unittest.TestCase) :
     """Test cases for the organize feature."""
@@ -13,19 +13,19 @@ class TestOrganizeScenarios(unittest.TestCase) :
         it won't have a fixed IP reservation and it will not be a known device. 
         In this scenario, a new iPad has just joined the network: """
 
-        known_devices: List[KnownDevice]= [
+        known_devices: List[ports.KnownDevice]= [
             # No known devices
         ]
-        active_clients: List[ActiveClient] = [
-            ActiveClient(mac='aa', name='Jasons iPad', ip_address='192.168.128.20')
+        active_clients: List[ports.ActiveClient] = [
+            ports.ActiveClient(mac='aa', name='Jasons iPad', ip_address='192.168.128.20')
         ]
-        fixed_ip_reservations: List[FixedIpReservation] = [
+        fixed_ip_reservations: List[ports.FixedIpReservation] = [
             # No Fixed IP reservations
         ]
-        known_devices_port=KnownDevicesMockAdapter(seed_list=known_devices)
-        active_clients_port=ActiveClientsMockAdapter(seed_list=active_clients)
-        fixed_ip_reservations_port=FixedIpReservationsMockAdapter(vlan_subnet='192.168.128.0/24',seed_list=fixed_ip_reservations)
-        net_organizer_app = NetOrganizerApp(
+        known_devices_port=mockadapters.KnownDevicesAdapter(seed_list=known_devices)
+        active_clients_port=mockadapters.ActiveClientsAdapter(seed_list=active_clients)
+        fixed_ip_reservations_port=mockadapters.FixedIpReservationsAdapter(vlan_subnet='192.168.128.0/24',seed_list=fixed_ip_reservations)
+        net_organizer_app = app.NetOrganizerApp(
             known_devices_port,
             active_clients_port,
             fixed_ip_reservations_port,
@@ -48,10 +48,10 @@ class TestOrganizeScenarios(unittest.TestCase) :
         # and organize again and we should see there is nothing to do
         # detected by compating the state of fixed_ip_reservations and known_devices
         # before and after the second organize - they should be the same
-        known_devices_port=KnownDevicesMockAdapter(seed_list=post_organize_known_devices)
-        active_clients_port=ActiveClientsMockAdapter(seed_list=active_clients)
-        fixed_ip_reservations_port=FixedIpReservationsMockAdapter(vlan_subnet='192.168.128.0/24',seed_list=post_organize_fixed_ip_reservations)
-        net_organizer_app = NetOrganizerApp(
+        known_devices_port=mockadapters.KnownDevicesAdapter(seed_list=post_organize_known_devices)
+        active_clients_port=mockadapters.ActiveClientsAdapter(seed_list=active_clients)
+        fixed_ip_reservations_port=mockadapters.FixedIpReservationsAdapter(vlan_subnet='192.168.128.0/24',seed_list=post_organize_fixed_ip_reservations)
+        net_organizer_app = app.NetOrganizerApp(
             known_devices_port,
             active_clients_port,
             fixed_ip_reservations_port,
@@ -68,19 +68,19 @@ class TestOrganizeScenarios(unittest.TestCase) :
         """A device is active on the network. It is a known device, but for whatever
         reason it is missing a fixed IP reservation."""
 
-        known_devices: List[KnownDevice]= [
-            KnownDevice(name='Jasons iPad', mac='aa', group="jasons_devices")
+        known_devices: List[ports.KnownDevice]= [
+            ports.KnownDevice(name='Jasons iPad', mac='aa', group="jasons_devices")
         ]
-        active_clients: List[ActiveClient] = [
-            ActiveClient(mac='aa', name='Jasons iPad', ip_address='192.168.128.20')
+        active_clients: List[ports.ActiveClient] = [
+            ports.ActiveClient(mac='aa', name='Jasons iPad', ip_address='192.168.128.20')
         ]
-        fixed_ip_reservations: List[FixedIpReservation] = [
+        fixed_ip_reservations: List[ports.FixedIpReservation] = [
             # Missing fixed IP reservation
         ]
-        known_devices_port=KnownDevicesMockAdapter(seed_list=known_devices)
-        active_clients_port=ActiveClientsMockAdapter(seed_list=active_clients)
-        fixed_ip_reservations_port=FixedIpReservationsMockAdapter(vlan_subnet='192.168.128.0/24',seed_list=fixed_ip_reservations)
-        net_organizer_app = NetOrganizerApp(
+        known_devices_port=mockadapters.KnownDevicesAdapter(seed_list=known_devices)
+        active_clients_port=mockadapters.ActiveClientsAdapter(seed_list=active_clients)
+        fixed_ip_reservations_port=mockadapters.FixedIpReservationsAdapter(vlan_subnet='192.168.128.0/24',seed_list=fixed_ip_reservations)
+        net_organizer_app = app.NetOrganizerApp(
             known_devices_port,
             active_clients_port,
             fixed_ip_reservations_port,
@@ -98,19 +98,19 @@ class TestOrganizeScenarios(unittest.TestCase) :
         """A device is not active and it is not a known device. However, it has a lingering 
         fixed IP reservation that needs to be cleaned up."""
 
-        known_devices: List[KnownDevice]= [
+        known_devices: List[ports.KnownDevice]= [
             # No known devices
         ]
-        active_clients: List[ActiveClient] = [
+        active_clients: List[ports.ActiveClient] = [
             # No active devices
         ]
-        fixed_ip_reservations: List[FixedIpReservation] = [
-            FixedIpReservation(mac='aa', name='Some Retired device', ip_address='192.168.128.20')
+        fixed_ip_reservations: List[ports.FixedIpReservation] = [
+            ports.FixedIpReservation(mac='aa', name='Some Retired device', ip_address='192.168.128.20')
         ]
-        known_devices_port=KnownDevicesMockAdapter(seed_list=known_devices)
-        active_clients_port=ActiveClientsMockAdapter(seed_list=active_clients)
-        fixed_ip_reservations_port=FixedIpReservationsMockAdapter(vlan_subnet='192.168.128.0/24',seed_list=fixed_ip_reservations)
-        net_organizer_app = NetOrganizerApp(
+        known_devices_port=mockadapters.KnownDevicesAdapter(seed_list=known_devices)
+        active_clients_port=mockadapters.ActiveClientsAdapter(seed_list=active_clients)
+        fixed_ip_reservations_port=mockadapters.FixedIpReservationsAdapter(vlan_subnet='192.168.128.0/24',seed_list=fixed_ip_reservations)
+        net_organizer_app = app.NetOrganizerApp(
             known_devices_port,
             active_clients_port,
             fixed_ip_reservations_port,
@@ -125,19 +125,19 @@ class TestOrganizeScenarios(unittest.TestCase) :
         """A new device that has been registered and is known. However, it is not active on
         the network and does not yet have an IP address."""
 
-        known_devices: List[KnownDevice]= [
-            KnownDevice(name='Jasons iPad', mac='aa', group="jasons_devices")
+        known_devices: List[ports.KnownDevice]= [
+            ports.KnownDevice(name='Jasons iPad', mac='aa', group="jasons_devices")
         ]
-        active_clients: List[ActiveClient] = [
+        active_clients: List[ports.ActiveClient] = [
             # No active devices
         ]
-        fixed_ip_reservations: List[FixedIpReservation] = [
+        fixed_ip_reservations: List[ports.FixedIpReservation] = [
             # Missing fixed IP reservation
         ]
-        known_devices_port=KnownDevicesMockAdapter(seed_list=known_devices)
-        active_clients_port=ActiveClientsMockAdapter(seed_list=active_clients)
-        fixed_ip_reservations_port=FixedIpReservationsMockAdapter(vlan_subnet='192.168.128.0/24',seed_list=fixed_ip_reservations)
-        net_organizer_app = NetOrganizerApp(
+        known_devices_port=mockadapters.KnownDevicesAdapter(seed_list=known_devices)
+        active_clients_port=mockadapters.ActiveClientsAdapter(seed_list=active_clients)
+        fixed_ip_reservations_port=mockadapters.FixedIpReservationsAdapter(vlan_subnet='192.168.128.0/24',seed_list=fixed_ip_reservations)
+        net_organizer_app = app.NetOrganizerApp(
             known_devices_port,
             active_clients_port,
             fixed_ip_reservations_port,
@@ -151,19 +151,19 @@ class TestOrganizeScenarios(unittest.TestCase) :
         self.assertEqual(post_organize_fixed_ip_reservations[0].name, 'Jasons iPad')
 
     def test_activeip_different_to_fixedip(self):
-        known_devices: List[KnownDevice]= [
-            KnownDevice(name='Jasons Devices work laptop-JASCHAMB-M-XRDP', mac='f8:4d:89:7d:71:90', group="jasons_devices")
+        known_devices: List[ports.KnownDevice]= [
+            ports.KnownDevice(name='Jasons Devices work laptop-JASCHAMB-M-XRDP', mac='f8:4d:89:7d:71:90', group="jasons_devices")
         ]
-        active_clients: List[ActiveClient] = [
-            ActiveClient(mac='f8:4d:89:7d:71:90', name='Jasons Devices work laptop-JASCHAMB-M-XRDP', ip_address='169.254.162.207')
+        active_clients: List[ports.ActiveClient] = [
+            ports.ActiveClient(mac='f8:4d:89:7d:71:90', name='Jasons Devices work laptop-JASCHAMB-M-XRDP', ip_address='169.254.162.207')
         ]
-        fixed_ip_reservations: List[FixedIpReservation] = [
-            FixedIpReservation(mac='f8:4d:89:7d:71:90', name='Jasons Devices work laptop-JASCHAMB-M-XRDP', ip_address='192.168.128.237')
+        fixed_ip_reservations: List[ports.FixedIpReservation] = [
+            ports.FixedIpReservation(mac='f8:4d:89:7d:71:90', name='Jasons Devices work laptop-JASCHAMB-M-XRDP', ip_address='192.168.128.237')
         ] 
-        known_devices_port=KnownDevicesMockAdapter(seed_list=known_devices)
-        active_clients_port=ActiveClientsMockAdapter(seed_list=active_clients)
-        fixed_ip_reservations_port=FixedIpReservationsMockAdapter(vlan_subnet='192.168.128.0/24',seed_list=fixed_ip_reservations)
-        net_organizer_app = NetOrganizerApp(
+        known_devices_port=mockadapters.KnownDevicesAdapter(seed_list=known_devices)
+        active_clients_port=mockadapters.ActiveClientsAdapter(seed_list=active_clients)
+        fixed_ip_reservations_port=mockadapters.FixedIpReservationsAdapter(vlan_subnet='192.168.128.0/24',seed_list=fixed_ip_reservations)
+        net_organizer_app = app.NetOrganizerApp(
             known_devices_port,
             active_clients_port,
             fixed_ip_reservations_port,
@@ -178,23 +178,23 @@ class TestOrganizeScenarios(unittest.TestCase) :
         self.assertEqual(post_organize_fixed_ip_reservations[0].ip_address, '192.168.128.237')
 
     def test_networkspace_exhausted(self):
-        known_devices: List[KnownDevice]= [
-            KnownDevice(name='Not enough space left for this device', mac='new', group="jasons_devices")
+        known_devices: List[ports.KnownDevice]= [
+            ports.KnownDevice(name='Not enough space left for this device', mac='new', group="jasons_devices")
         ]
-        active_clients: List[ActiveClient] = [
-            ActiveClient(mac='active', name='active', ip_address='192.168.128.254')
+        active_clients: List[ports.ActiveClient] = [
+            ports.ActiveClient(mac='active', name='active', ip_address='192.168.128.254')
         ]
-        fixed_ip_reservations: List[FixedIpReservation] = [
-            FixedIpReservation(mac='reserved', ip_address='192.168.128.253', name='reserved')
+        fixed_ip_reservations: List[ports.FixedIpReservation] = [
+            ports.FixedIpReservation(mac='reserved', ip_address='192.168.128.253', name='reserved')
         ]
-        known_devices_port=KnownDevicesMockAdapter(seed_list=known_devices)
-        active_clients_port=ActiveClientsMockAdapter(seed_list=active_clients)
-        fixed_ip_reservations_port=FixedIpReservationsMockAdapter(vlan_subnet='192.168.128.252/30',seed_list=fixed_ip_reservations)
-        net_organizer_app = NetOrganizerApp(
+        known_devices_port=mockadapters.KnownDevicesAdapter(seed_list=known_devices)
+        active_clients_port=mockadapters.ActiveClientsAdapter(seed_list=active_clients)
+        fixed_ip_reservations_port=mockadapters.FixedIpReservationsAdapter(vlan_subnet='192.168.128.252/30',seed_list=fixed_ip_reservations)
+        net_organizer_app = app.NetOrganizerApp(
             known_devices_port,
             active_clients_port,
             fixed_ip_reservations_port,
             device_table_csv_out_port=None,
             sna_hostgroup_port=None,
         )
-        self.assertRaises(NetworkIsOutOfSpace, net_organizer_app.do_organize)
+        self.assertRaises(networkspace.NetworkIsOutOfSpace, net_organizer_app.do_organize)

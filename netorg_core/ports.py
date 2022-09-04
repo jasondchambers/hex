@@ -3,7 +3,7 @@ from abc import ABC, abstractmethod
 from typing import List
 import requests
 
-from devicetable import DeviceTable
+from netorg_core import devicetable
 
 class KnownDevice(NamedTuple):
     name: str
@@ -38,7 +38,7 @@ class KnownDevicesPort(ABC): #DONE
         pass
 
     @abstractmethod
-    def save(device_table: DeviceTable) -> None: #DONE
+    def save(device_table: devicetable.DeviceTable) -> None: #DONE
         pass
 
 class ActiveClientsPort(ABC): #DONE
@@ -54,7 +54,7 @@ class FixedIpReservationsPort(ABC): #DONE
         pass
 
     @abstractmethod
-    def save(device_table: DeviceTable) -> None: #DONE
+    def save(device_table: devicetable.DeviceTable) -> None: #DONE
         pass
 
 class NetorgConfigurationPort(ABC):
@@ -82,7 +82,7 @@ class DeviceTableCsvOutPort(ABC): #DONE
 class SecureNetworkAnalyticsHostGroupManagementPort(ABC): #TODO
 
     @abstractmethod
-    def update_host_groups(device_table: DeviceTable) -> None: #TODO
+    def update_host_groups(device_table: devicetable.DeviceTable) -> None: #TODO
         pass
 
     class FailedToCreateHostGroup(Exception) :

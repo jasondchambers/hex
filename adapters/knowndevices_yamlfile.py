@@ -3,10 +3,10 @@ from typing import List
 import os.path
 import yaml
 from deepdiff import DeepDiff
-from ports import KnownDevice, KnownDevicesPort
-from devicetable import DeviceTable
+from netorg_core import ports
+from netorg_core import devicetable
 
-class KnownDevicesYamlFileAdapter(KnownDevicesPort):
+class KnownDevicesAdapter(ports.KnownDevicesPort):
     """Load known devices from a YAML file."""
 
     def __init__(self, config: dict) -> None:
@@ -14,21 +14,21 @@ class KnownDevicesYamlFileAdapter(KnownDevicesPort):
         self.filename = config['devices_yml']
 
     # overriding abstract method
-    def load(self) -> List[KnownDevice]:
-        list_of_known_devices: List[KnownDevice] = []
+    def load(self) -> List[ports.KnownDevice]:
+        list_of_known_devices: List[ports.KnownDevice] = []
         if os.path.exists(self.filename) :
-            self.__logger.debug(f"KnownDevicesYamlFileAdapter.load() loading known devices from {self.filename}")
+            self.__logger.debug(f"KnownDevicesAdapter.load() loading known devices from {self.filename}")
             with open(self.filename, encoding='utf8') as known_devices_file:
                 yaml_data = yaml.load(known_devices_file, Loader=yaml.FullLoader)
                 return self.__generate_list_of_known_devices(yaml_data)
         else:
-            self.__logger.debug(f"KnownDevicesYamlFileAdapter.load() {self.filename} not found")
-        self.__logger.debug(f"KnownDevicesYamlFileAdapter.load() returned {len(list_of_known_devices)} known devices")
+            self.__logger.debug(f"KnownDevicesAdapter.load() {self.filename} not found")
+        self.__logger.debug(f"KnownDevicesAdapter.load() returned {len(list_of_known_devices)} known devices")
         return list_of_known_devices
 
     # overriding abstract method
-    def save(self,device_table: DeviceTable) -> None:
-        self.__logger.debug(f"KnownDevicesYamlFileAdapter.save() saving known devices to {self.filename}")
+    def save(self,device_table: devicetable.DeviceTable) -> None:
+        self.__logger.debug(f"KnownDevicesAdapter.save() saving known devices to {self.filename}")
         before = self.load()
         with open(self.filename, 'w', encoding='utf8') as devices_yml_file:
             devices_yml_file.write(self.__generate_yaml(device_table))
@@ -86,13 +86,13 @@ class KnownDevicesYamlFileAdapter(KnownDevicesPort):
         else:
             self.__logger.info("There are no changes to known devices (devices.yml)")
 
-    def __generate_list_of_known_devices(self, yaml_data) -> List[KnownDevice]:
+    def __generate_list_of_known_devices(self, yaml_data) -> List[ports.KnownDevice]:
         """Generate list of known devices from YAML data."""
         if not isinstance(yaml_data, dict):
             raise ValueError("Invalid YAML")
         if 'devices' not in yaml_data:
             raise ValueError("Invalid YAML")
-        list_of_known_devices: List[KnownDevice] = []
+        list_of_known_devices: List[ports.KnownDevice] = []
         devices = yaml_data['devices']
         device_group_names = devices.keys()
         for device_group_name in device_group_names:
@@ -101,7 +101,7 @@ class KnownDevicesYamlFileAdapter(KnownDevicesPort):
                 device_in_group_str = device_in_group.split(',')
                 device_name = device_in_group_str[0]
                 device_mac = device_in_group_str[1]
-                known_device = KnownDevice(
+                known_device = ports.KnownDevice(
                     name=device_name,
                     mac=device_mac,
                     group=device_group_name)

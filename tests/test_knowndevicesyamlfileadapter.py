@@ -3,7 +3,7 @@
 import unittest
 import tempfile
 
-from adapters.knowndevices_yamlfile import KnownDevicesYamlFileAdapter
+from adapters import knowndevices_yamlfile
 
 class TestKnownDevicesYamlFileAdapter(unittest.TestCase):
     """Tests for TestKnownDevicesYamlFileAdapter."""
@@ -36,7 +36,7 @@ class TestKnownDevicesYamlFileAdapter(unittest.TestCase):
     def test_load_file_not_found(self):
         """Test load with file that does not exist."""
         config = {'devices_yml': '/a/b/doesnotexist.yml'}
-        known_devices_yaml_file_adapter = KnownDevicesYamlFileAdapter(config=config)
+        known_devices_yaml_file_adapter = knowndevices_yamlfile.KnownDevicesAdapter(config=config)
         devices = known_devices_yaml_file_adapter.load()
         self.assertEqual(len(devices), 0)
 
@@ -48,7 +48,7 @@ class TestKnownDevicesYamlFileAdapter(unittest.TestCase):
             yaml_fp.write(TestKnownDevicesYamlFileAdapter.generate_test_data())
             yaml_fp.close()
             config = {'devices_yml': temp_file.name }
-            known_devices_yaml_file_adapter = KnownDevicesYamlFileAdapter(config=config)
+            known_devices_yaml_file_adapter = knowndevices_yamlfile.KnownDevicesAdapter(config=config)
             devices = known_devices_yaml_file_adapter.load()
             self.inspect_output(devices)
 
@@ -60,5 +60,5 @@ class TestKnownDevicesYamlFileAdapter(unittest.TestCase):
             yaml_fp.write('Not YAML at all')
             yaml_fp.close()
             config = {'devices_yml': temp_file.name }
-            known_devices_yaml_file_adapter = KnownDevicesYamlFileAdapter(config=config)
+            known_devices_yaml_file_adapter = knowndevices_yamlfile.KnownDevicesAdapter(config=config)
             self.assertRaises(ValueError, known_devices_yaml_file_adapter.load)
