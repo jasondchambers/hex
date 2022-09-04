@@ -14,13 +14,15 @@ from adapters import sna_session
 from netorg_core import app
 
 def init_logging(debug_flag: bool) -> None:
-    """ Initialize logging so that 
+    """ Initialize logging so that
            only debug, info -> stdout (and only stdout)
            only warning, error, critical -> stderr (and only stderr)
     """
     class InfoFilter(logging.Filter):
-        def filter(self, rec):
-            return rec.levelno in (logging.DEBUG, logging.INFO)
+        # pylint: disable=too-few-public-methods
+        """Filter only debug and info."""
+        def filter(self, record):
+            return record.levelno in (logging.DEBUG, logging.INFO)
 
     logger = logging.getLogger("netorg")
     info_channel = logging.StreamHandler(sys.stdout)
@@ -30,7 +32,7 @@ def init_logging(debug_flag: bool) -> None:
         info_channel.setLevel(logging.DEBUG)
         info_channel.setFormatter(
             logging.Formatter(
-                fmt='%(asctime)s %(name)12s: %(levelname)8s > %(message)s', 
+                fmt='%(asctime)s %(name)12s: %(levelname)8s > %(message)s',
                 datefmt='%Y-%m-%d %H:%M:%S'
             )
         )
@@ -48,6 +50,7 @@ def init_logging(debug_flag: bool) -> None:
     logger.addHandler(error_channel)
 
 def create_net_organizer_app(debug_flag: bool) -> app.NetOrganizerApp:
+    """Create the NetOrganizerApp object."""
     init_logging(debug_flag)
     configuration_port = configuration_jsonfile.NetorgConfigurationAdapter()
     config = configuration_port.load()
@@ -75,27 +78,33 @@ def do_configure() -> None:
     net_organizer_configurator.save(merged)
 
 def get_parser() -> argparse.ArgumentParser:
-    """Figure out what the user wants to happen and make it so."""
+    """Build and return an CLI argument parser."""
     parser = argparse.ArgumentParser(description='Organize your network.')
-    parser.add_argument("-v", "--verbose", 
-                        help="Useful for debugging", 
-                        action="store_true")
+    parser.add_argument(
+        "-v", "--verbose",
+        help="Useful for debugging",
+        action="store_true")
     group = parser.add_mutually_exclusive_group()
-    group.add_argument("-c", "--configure", 
-                       help="[Re-]Configure Netorg.",
-                       action="store_true")
-    group.add_argument("-s", "--scan", 
-                       help="Scan to discover new devices, query active devices and fixed IP reservations. Generate/update known devices (devices.yml).",
-                       action="store_true")
-    group.add_argument("-o", "--organize", 
-                       help="Organize the network. If configured, push changes to Secure Network Analytics.",
-                       action="store_true")
-    group.add_argument("-e", "--export", 
-                       help="Export the device table",
-                       action="store_true")
+    group.add_argument(
+        "-c", "--configure",
+        help="[Re-]Configure Netorg.",
+        action="store_true")
+    group.add_argument(
+        "-s", "--scan",
+        help="Discover new devices, query fixed IP reservations, generate/update devices.yml.",
+        action="store_true")
+    group.add_argument(
+        "-o", "--organize",
+        help="Organize the network. If configured, push changes to Secure Network Analytics.",
+        action="store_true")
+    group.add_argument(
+        "-e", "--export",
+        help="Export the device table",
+        action="store_true")
     return parser
 
 def main():
+    """The main program for netorg CLI."""
     parser = get_parser()
     args = parser.parse_args()
     debug_flag = False
