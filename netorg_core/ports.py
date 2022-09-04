@@ -44,7 +44,7 @@ class KnownDevicesPort(ABC): #DONE
 class ActiveClientsPort(ABC): #DONE
 
     @abstractmethod
-    def load() -> List[ActiveClient]: #DONE
+    def load(self) -> List[ActiveClient]: #DONE
         pass
 
 class FixedIpReservationsPort(ABC): #DONE
@@ -60,11 +60,11 @@ class FixedIpReservationsPort(ABC): #DONE
 class NetorgConfigurationPort(ABC):
 
     @abstractmethod
-    def load() -> dict: #DONE
+    def load(self) -> dict: #DONE
         pass
 
     @abstractmethod
-    def save(config: dict): #DONE
+    def save(self,config: dict): #DONE
         pass
 
 class ConfigurationWizardPort(ABC):

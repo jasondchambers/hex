@@ -1,10 +1,12 @@
-
+"""Provides an implementation of ActiveClients port for a Meraki powered network."""
 import logging
 from typing import List
 import meraki
 from netorg_core import ports
 
 class ActiveClientsAdapter(ports.ActiveClientsPort):
+    """Provides an implementation of ActiveClients port for a Meraki powered network."""
+    # pylint: disable=too-few-public-methods
 
     def __init__(self, config: dict) -> None:
         self.__logger = logging.getLogger("netorg")
