@@ -1,7 +1,10 @@
+"""Provides a CLI based SNA configuration wizard."""
 import getpass
 from netorg_core import ports
 
 class ConfigurationWizardForSnaAdapter(ports.ConfigurationWizardPort):
+    """Provides a CLI based SNA configuration wizard."""
+    # pylint: disable=too-few-public-methods
 
     def __init__(self, sna_session_port: ports.SecureNetworkAnalyticsSessionPort):
         self.__sna_session_port = sna_session_port
@@ -29,11 +32,11 @@ class ConfigurationWizardForSnaAdapter(ports.ConfigurationWizardPort):
         try:
             self.__sna_session_port.login(
                 config['sna.manager.host'],
-                config['sna.manager.username'], 
+                config['sna.manager.username'],
                 config['sna.manager.password'])
             self.__sna_session_port.logout()
             print('Secure Network Analytics configuration is valid')
             return True
-        except ports.SecureNetworkAnalyticsSessionPort.FailedToLogin as e:
+        except ports.SecureNetworkAnalyticsSessionPort.FailedToLogin:
             print(f'Failed to login to Secure Network Analytics Manager at {config["sna.manager.host"]}')
             return False
