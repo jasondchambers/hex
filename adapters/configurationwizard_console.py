@@ -1,9 +1,12 @@
+"""Provides a CLI based configuration wizard."""
 import getpass
 import os
 import meraki
 from netorg_core import ports
 
 class ConfigurationWizardAdapter(ports.ConfigurationWizardPort):
+    """Provides a CLI based configuration wizard."""
+    # pylint: disable=too-few-public-methods
 
     # overriding abstract method
     def generate(self) -> dict:
@@ -41,7 +44,7 @@ class ConfigurationWizardAdapter(ports.ConfigurationWizardPort):
             if selection in choices:
                 break
         return selection
-    
+
     @staticmethod
     def __get_devices_yml_path() -> str:
         """Obtain the fully qualified pathname for where to find/store known devices"""

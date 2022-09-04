@@ -70,7 +70,7 @@ class NetorgConfigurationPort(ABC):
 class ConfigurationWizardPort(ABC):
 
     @abstractmethod
-    def generate() -> dict:
+    def generate(self) -> dict:
         pass
 
 class DeviceTableCsvOutPort(ABC): #DONE
