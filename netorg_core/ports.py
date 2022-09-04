@@ -76,7 +76,7 @@ class ConfigurationWizardPort(ABC):
 class DeviceTableCsvOutPort(ABC): #DONE
 
     @abstractmethod
-    def write(device_table_csv: str): #DONE
+    def write(self,device_table_csv: str): #DONE
         pass
 
 class SecureNetworkAnalyticsHostGroupManagementPort(ABC): #TODO
