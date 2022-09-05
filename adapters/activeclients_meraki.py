@@ -7,6 +7,7 @@ from netorg_core import ports
 class ActiveClientsAdapter(ports.ActiveClientsPort):
     """Provides an implementation of ActiveClients port for a Meraki powered network."""
     # pylint: disable=too-few-public-methods
+    # pylint: disable=logging-fstring-interpolation
 
     def __init__(self, config: dict) -> None:
         self.__logger = logging.getLogger("netorg")

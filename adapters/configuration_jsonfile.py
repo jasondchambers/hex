@@ -7,6 +7,7 @@ from netorg_core import ports
 class NetorgConfigurationAdapter(ports.NetorgConfigurationPort):
     """Configuration file adapter where the config file is JSON in the home directory."""
     # pylint: disable=line-too-long
+    # pylint: disable=logging-fstring-interpolation
 
     def __init__(self) -> None:
         self.__logger = logging.getLogger("netorg")
