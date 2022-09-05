@@ -1,17 +1,21 @@
-import requests
+"""Provides Secure Network Analytics API session management."""
 import json
+import logging
+import requests
 from netorg_core import ports
+# pylint: disable=logging-fstring-interpolation
 try:
     requests.packages.urllib3.disable_warnings()
 except:
     pass
 
 class SecureNetworkAnalyticsSessionAdapter(ports.SecureNetworkAnalyticsSessionPort):
-    """Secure Network Analytics Session."""
+    """Provides Secure Network Analytics API session management."""
 
     XSRF_HEADER_NAME = 'X-XSRF-TOKEN'
 
     def __init__(self) -> None:
+        self.__logger = logging.getLogger("netorg")
         self.__host = None
         self.__api_session = None
         self.__tenant_id = None
@@ -21,16 +25,18 @@ class SecureNetworkAnalyticsSessionAdapter(ports.SecureNetworkAnalyticsSessionPo
         #TODO - protect against successive logins without logging out
         self.__host = host
         self.__authenticate(user,password)
-        self.__tenant_id = self.__query_tenant_id() 
+        self.__tenant_id = self.__query_tenant_id()
 
     # overriding abstract method
     def logout(self) -> None:
         """Logout of Secure Network Analytics."""
         # pylint: disable=unused-variable
-        if not self.__tenant_id: return
+        if not self.__tenant_id:
+            return
         uri = 'https://' + self.__host + '/token'
         response = self.__api_session.delete(uri, timeout=30, verify=False)
-        self.__api_session.headers.update({SecureNetworkAnalyticsSessionAdapter.XSRF_HEADER_NAME: None})
+        self.__api_session.headers.update(
+            {SecureNetworkAnalyticsSessionAdapter.XSRF_HEADER_NAME: None})
         self.__host = None
         self.__api_session = None
         self.__tenant_id = None
@@ -56,17 +62,19 @@ class SecureNetworkAnalyticsSessionAdapter(ports.SecureNetworkAnalyticsSessionPo
             "password": password
         }
         try:
-            response = self.__api_session.request("POST", uri, verify=False, data=login_request_data, timeout=3)
+            response = self.__api_session.request(
+                "POST", uri, verify=False, data=login_request_data, timeout=3)
             if response.status_code == 200:
                 # Set XSRF token for future requests
                 for cookie in response.cookies:
                     if cookie.name == 'XSRF-TOKEN':
-                        self.__api_session.headers.update({SecureNetworkAnalyticsSessionAdapter.XSRF_HEADER_NAME: cookie.value})
+                        self.__api_session.headers.update(
+                            {SecureNetworkAnalyticsSessionAdapter.XSRF_HEADER_NAME: cookie.value})
                         break
             else:
                 raise ports.SecureNetworkAnalyticsSessionPort.FailedToLogin()
-        except requests.exceptions.ConnectionError as e:
-            raise ports.SecureNetworkAnalyticsSessionPort.FailedToLogin() from e
+        except requests.exceptions.ConnectionError as exc:
+            raise ports.SecureNetworkAnalyticsSessionPort.FailedToLogin() from exc
 
     def __query_tenant_id(self) -> str:
         """Discover the tenant id."""
@@ -75,3 +83,6 @@ class SecureNetworkAnalyticsSessionAdapter(ports.SecureNetworkAnalyticsSessionPo
         if response.status_code == 200:
             tenant_list = json.loads(response.content)["data"]
             return tenant_list[0]["id"]
+        self.__logger.error('Failed to discover the Secure Network Analytics tenant ID')
+        self.__logger.error(f'{url} returned {response.status_code}')
+        return ''

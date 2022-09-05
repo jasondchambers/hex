@@ -97,23 +97,23 @@ class SecureNetworkAnalyticsHostGroupManagementPort(ABC): #TODO
 class SecureNetworkAnalyticsSessionPort(ABC):
 
     @abstractmethod
-    def login(host: str, user: str, password: str) -> None:
+    def login(self, host: str, user: str, password: str) -> None:
         pass
 
     @abstractmethod
-    def logout() -> None:
+    def logout(self) -> None:
         pass
 
     @abstractmethod
-    def get_host() -> str:
+    def get_host(self) -> str:
         pass
 
     @abstractmethod
-    def get_tenant_id() -> str:
+    def get_tenant_id(self) -> str:
         pass
 
     @abstractmethod
-    def get_api_session() -> requests.Session:
+    def get_api_session(self) -> requests.Session:
         pass
 
     class FailedToLogin(Exception) :
