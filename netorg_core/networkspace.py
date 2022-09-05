@@ -1,3 +1,4 @@
+"""Provides allocation of unique IP addresses in a network space."""
 import ipaddress
 
 # pylint: disable=missing-class-docstring
@@ -52,6 +53,10 @@ class NetworkMapper :
         self.__device_table = device_table
 
     def map_to_network_space(self) -> None:
+        """
+        Map the devices in the device table to the network space.
+        devices that do not have an IP address will be allocated one.
+        """
         # pylint: disable=invalid-name
         for ip in self.__find_ips() :
             self.__network_space.allocate_specific_address(ip)
@@ -65,6 +70,7 @@ class NetworkMapper :
         return amount_used / total_address_space * 100.0
 
     def get_network_space(self) -> Ipv4PrivateNetworkSpace:
+        """Return the network space object."""
         return self.__network_space
 
     def __find_ips(self) -> list:
@@ -84,4 +90,3 @@ class NetworkMapper :
         # pylint: disable=invalid-name
         df = self.__device_table.get_df()
         df.loc[df["mac"] == mac, "ip"] = self.__network_space.allocate_address()
-

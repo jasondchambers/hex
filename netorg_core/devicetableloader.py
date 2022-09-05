@@ -3,6 +3,9 @@ import logging
 from netorg_core import ports
 from netorg_core import devicetable
 
+# pylint: disable=logging-fstring-interpolation
+# pylint: disable=too-few-public-methods
+
 class DeviceTableBuilder :
     """Efficiently Build a DeviceTable."""
 

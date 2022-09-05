@@ -1,6 +1,9 @@
 """This is the main module for Netorg scanning."""
 import logging
 
+# pylint: disable=line-too-long
+# pylint: disable=logging-fstring-interpolation
+
 class NetorgScanner:
     """All things associated with Netorg scanning"""
 
