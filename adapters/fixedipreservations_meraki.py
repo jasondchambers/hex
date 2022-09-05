@@ -1,3 +1,4 @@
+"""Provides loading/saving of fixed IP reservations. """
 import logging
 import re
 from typing import List
@@ -8,6 +9,9 @@ from netorg_core import networkspace
 from netorg_core import ports
 
 class FixedIpReservationsAdapter(ports.FixedIpReservationsPort):
+    """Provides loading/saving of fixed IP reservations. """
+    # pylint: disable=logging-fstring-interpolation
+    # pylint: disable=line-too-long
 
     def __init__(self, config: dict) -> None:
         self.__logger = logging.getLogger("netorg")
@@ -18,7 +22,7 @@ class FixedIpReservationsAdapter(ports.FixedIpReservationsPort):
         self.network_id = config['network_id']
         self.vlan_id = str(config['vlan_id'])
         self.vlan_subnet = config['vlan_subnet']
-        
+
     # overriding abstract method
     def load(self) -> List[ports.FixedIpReservation]:
         list_of_fixed_ip_reservations: List[ports.FixedIpReservation] = []
@@ -36,7 +40,7 @@ class FixedIpReservationsAdapter(ports.FixedIpReservationsPort):
         return list_of_fixed_ip_reservations
 
     # overriding abstract method
-    def save(self,device_table: devicetable.DeviceTable) -> None: #TODO
+    def save(self,device_table: devicetable.DeviceTable) -> None:
         network_mapper = networkspace.NetworkMapper(self.vlan_subnet,device_table)
         network_mapper.map_to_network_space()
         self.__logger.info(f'Network space is {network_mapper.get_percent_used():.2f}% full')
@@ -48,7 +52,7 @@ class FixedIpReservationsAdapter(ports.FixedIpReservationsPort):
         response = self.dashboard.appliance.updateNetworkApplianceVlan(
             self.network_id, self.vlan_id,
             fixedIpAssignments=new_fixed_ip_reservations)
-        self.__logger.debug(f"FixedIpReservationsMerakiAdapter.save() response from Meraki {response}")
+        self.__logger.debug(f"FixedIpReservationsAdapter.save() response from Meraki {response}")
 
     @staticmethod
     def __generate_fixed_ip_reservations(device_table: devicetable.DeviceTable) -> dict:
@@ -70,7 +74,7 @@ class FixedIpReservationsAdapter(ports.FixedIpReservationsPort):
                         'name': name
                     }
             else:
-                logger.debug(f'MerakiFixedIpReservationsGenerator: skipping {mac}')
+                logger.debug(f'FixedIpReservationsAdapter: skipping {mac}')
         return ip_reservations_dict
 
     @staticmethod

@@ -31,40 +31,40 @@ class FixedIpReservation(NamedTuple):
     def __str__(self) -> str:
         return f'Fixed IP reservation: {self.mac} {self.name} {self.ip_address}'
 
-class KnownDevicesPort(ABC): #DONE
+class KnownDevicesPort(ABC):
 
     @abstractmethod
-    def load() -> List[KnownDevice]: #DONE
+    def load() -> List[KnownDevice]:
         pass
 
     @abstractmethod
-    def save(device_table: devicetable.DeviceTable) -> None: #DONE
+    def save(device_table: devicetable.DeviceTable) -> None:
         pass
 
-class ActiveClientsPort(ABC): #DONE
+class ActiveClientsPort(ABC):
 
     @abstractmethod
-    def load(self) -> List[ActiveClient]: #DONE
+    def load(self) -> List[ActiveClient]:
         pass
 
-class FixedIpReservationsPort(ABC): #DONE
+class FixedIpReservationsPort(ABC):
 
     @abstractmethod
-    def load() -> List[FixedIpReservation]: #DONE
+    def load(self) -> List[FixedIpReservation]:
         pass
 
     @abstractmethod
-    def save(device_table: devicetable.DeviceTable) -> None: #DONE
+    def save(self,device_table: devicetable.DeviceTable) -> None:
         pass
 
 class NetorgConfigurationPort(ABC):
 
     @abstractmethod
-    def load(self) -> dict: #DONE
+    def load(self) -> dict:
         pass
 
     @abstractmethod
-    def save(self,config: dict): #DONE
+    def save(self,config: dict):
         pass
 
 class ConfigurationWizardPort(ABC):
@@ -73,10 +73,10 @@ class ConfigurationWizardPort(ABC):
     def generate(self) -> dict:
         pass
 
-class DeviceTableCsvOutPort(ABC): #DONE
+class DeviceTableCsvOutPort(ABC):
 
     @abstractmethod
-    def write(self,device_table_csv: str): #DONE
+    def write(self,device_table_csv: str):
         pass
 
 class SecureNetworkAnalyticsHostGroupManagementPort(ABC): #TODO
