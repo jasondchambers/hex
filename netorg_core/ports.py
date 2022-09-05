@@ -34,11 +34,11 @@ class FixedIpReservation(NamedTuple):
 class KnownDevicesPort(ABC):
 
     @abstractmethod
-    def load() -> List[KnownDevice]:
+    def load(self) -> List[KnownDevice]:
         pass
 
     @abstractmethod
-    def save(device_table: devicetable.DeviceTable) -> None:
+    def save(self,device_table: devicetable.DeviceTable) -> None:
         pass
 
 class ActiveClientsPort(ABC):

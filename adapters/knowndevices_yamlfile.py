@@ -1,3 +1,4 @@
+"""Responsible for loading/saving groupings of known devices."""
 import logging
 from typing import List
 import os.path
@@ -7,7 +8,9 @@ from netorg_core import ports
 from netorg_core import devicetable
 
 class KnownDevicesAdapter(ports.KnownDevicesPort):
-    """Load known devices from a YAML file."""
+    """Responsible for loading/saving groupings of known devices."""
+    # pylint: disable=logging-fstring-interpolation
+    # pylint: disable=line-too-long
 
     def __init__(self, config: dict) -> None:
         self.__logger = logging.getLogger("netorg")
@@ -37,6 +40,7 @@ class KnownDevicesAdapter(ports.KnownDevicesPort):
 
     def __generate_yaml(self, device_table) -> str :
         """From the device table, generate the known devices file (devices.yml)."""
+        # pylint: disable=invalid-name
         yaml_lines = []
         yaml_lines.append("devices:")
         df = device_table.get_df()
@@ -51,8 +55,8 @@ class KnownDevicesAdapter(ports.KnownDevicesPort):
             devices_in_group = self.__get_devices_in_group(df,group_name,skip_these_macs)
             for device_in_group in devices_in_group :
                 yaml_lines.append(f'    - {device_in_group}')
-        s = '\n'.join(yaml_lines)
-        return s
+        entire_yaml = '\n'.join(yaml_lines)
+        return entire_yaml
 
     # pylint: disable=invalid-name
     def __get_devices_in_group(self, df, group, skip_these_macs) -> list :
