@@ -5,5 +5,6 @@ if [[ -z "${NETORG_HOME}" ]] ; then
    exit 1
 fi
 
+cd ${NETORG_HOME}
 source .venv/bin/activate 
-pylint *.py
+pylint netorg_core adapters tests *.py
