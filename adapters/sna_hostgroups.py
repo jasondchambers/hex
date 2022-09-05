@@ -1,13 +1,17 @@
+"""Provides Secure Network Analytics Host Group Management."""
 import logging
 import re
 import json
-from xmlrpc.client import Boolean
-from aiohttp import BodyPartReader
 from deepdiff import DeepDiff
 from netorg_core import devicetable
 from netorg_core import ports
 
+# pylint: disable=logging-fstring-interpolation
+# pylint: disable=line-too-long
+# pylint: disable=too-few-public-methods
+
 class SecureNetworkAnalyticsHostGroupManagementAdapter(ports.SecureNetworkAnalyticsHostGroupManagementPort):
+    """Provides Secure Network Analytics Host Group Management."""
 
     def __init__(self, config: dict, sna_session_port: ports.SecureNetworkAnalyticsSessionPort):
         self.__logger = logging.getLogger("netorg")
@@ -15,15 +19,15 @@ class SecureNetworkAnalyticsHostGroupManagementAdapter(ports.SecureNetworkAnalyt
         self.host = None
         self.username = None
         self.password = None
-        if 'sna.manager.host' in config.keys(): 
-            self.host = config['sna.manager.host'] 
-        if 'sna.manager.username' in config.keys(): 
-            self.username = config['sna.manager.username'] 
-        if 'sna.manager.password' in config.keys(): 
-            self.password = config['sna.manager.password'] 
+        if 'sna.manager.host' in config.keys():
+            self.host = config['sna.manager.host']
+        if 'sna.manager.username' in config.keys():
+            self.username = config['sna.manager.username']
+        if 'sna.manager.password' in config.keys():
+            self.password = config['sna.manager.password']
 
     # overriding abstract method
-    def update_host_groups(self,device_table: devicetable.DeviceTable) -> None: #TODO
+    def update_host_groups(self,device_table: devicetable.DeviceTable) -> None:
         if self.__is_configured():
             hostgroups = self.__build_hostgroups(device_table.get_df())
             self.__sna_session_port.login(
@@ -38,7 +42,7 @@ class SecureNetworkAnalyticsHostGroupManagementAdapter(ports.SecureNetworkAnalyt
 
     def __is_configured(self) -> bool:
         if self.host is None or self.username is None or self.password is None:
-            return False 
+            return False
         return True
 
     def __build_hostgroups(self, df):

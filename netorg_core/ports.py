@@ -82,7 +82,7 @@ class DeviceTableCsvOutPort(ABC):
 class SecureNetworkAnalyticsHostGroupManagementPort(ABC): #TODO
 
     @abstractmethod
-    def update_host_groups(device_table: devicetable.DeviceTable) -> None: #TODO
+    def update_host_groups(self,device_table: devicetable.DeviceTable) -> None: #TODO
         pass
 
     class FailedToCreateHostGroup(Exception) :
