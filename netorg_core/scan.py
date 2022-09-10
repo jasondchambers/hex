@@ -1,5 +1,6 @@
 """This is the main module for Netorg scanning."""
 import logging
+from netorg_core import format_utils
 
 # pylint: disable=line-too-long
 # pylint: disable=logging-fstring-interpolation
@@ -73,5 +74,7 @@ class NetorgScanner:
             else:
                 self.__logger.info(f'Found {len(v["device_names"])} device(s) that are: {v["query"]}')
                 self.__logger.info(f'{v["action"]}')
-                for device_name in v['device_names']:
-                    self.__logger.info(f'     {device_name}')
+                for row in format_utils.adaptive_columnize(v['device_names']):
+                    print(f"{' '.join(row)}")
+                #for device_name in v['device_names']:
+                    #self.__logger.info(f'     {device_name}')
