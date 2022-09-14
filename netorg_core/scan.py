@@ -74,7 +74,7 @@ class NetorgScanner:
             else:
                 self.__logger.info(f'Found {len(v["device_names"])} device(s) that are: {v["query"]}')
                 self.__logger.info(f'{v["action"]}')
-                for row in format_utils.adaptive_columnize(v['device_names']):
+                for row in format_utils.adaptive_columnize(v['device_names'], left_margin_width=3):
                     print(f"{' '.join(row)}")
                 #for device_name in v['device_names']:
                     #self.__logger.info(f'     {device_name}')
