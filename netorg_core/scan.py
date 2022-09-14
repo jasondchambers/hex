@@ -5,6 +5,7 @@ from netorg_core import format_utils
 # pylint: disable=line-too-long
 # pylint: disable=logging-fstring-interpolation
 
+
 class NetorgScanner:
     """All things associated with Netorg scanning"""
 
@@ -64,17 +65,17 @@ class NetorgScanner:
             query_result_df = df.query(v['query'])
             v['device_names'] = query_result_df['name'].values.tolist()
 
-    def report(self) :
+    def report(self):
         """Report on the findings discovered by run()."""
         # pylint: disable=invalid-name
         # pylint: disable=unused-variable
         for k, v in self.analysis.items():
             if len(v["device_names"]) == 0:
-                self.__logger.info(f'Did not find any devices that are: {v["query"]}')
+                self.__logger.info(
+                    f'Did not find any devices that are: {v["query"]}')
             else:
-                self.__logger.info(f'Found {len(v["device_names"])} device(s) that are: {v["query"]}')
+                self.__logger.info(
+                    f'Found {len(v["device_names"])} device(s) that are: {v["query"]}')
                 self.__logger.info(f'{v["action"]}')
                 for row in format_utils.adaptive_columnize(v['device_names'], left_margin_width=3):
-                    print(f"{' '.join(row)}")
-                #for device_name in v['device_names']:
-                    #self.__logger.info(f'     {device_name}')
+                    self.__logger.info(f"{' '.join(row)}")
