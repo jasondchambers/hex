@@ -36,6 +36,8 @@ def process_string(a_string: str, width: int, placeholder: str) -> str:
     width = max(width, 0)
     if width <= 0:
         return ''
+    if isinstance(a_string,str) == False:
+        return ''
     a_string = shorten_string(a_string, width, placeholder)
     a_string = pad_string(a_string, width)
     return a_string
